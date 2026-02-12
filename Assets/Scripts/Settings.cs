@@ -4,6 +4,6 @@ using UnityEngine;
 public class Settings
 {
     public static int QualityLevel;
-    public static float volume = 0.7f;
+    public static float volume = 1.0f;
 
 }
