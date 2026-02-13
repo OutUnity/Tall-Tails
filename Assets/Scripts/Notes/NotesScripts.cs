@@ -19,7 +19,10 @@ public class NotesScripts : MonoBehaviour
     }
     void SpawnNotes(int count)
     {
-        for (int i = 0; i < count; i++)
+        int spawnAmount = Mathf.Min(count, availableTexts.Count);
+        
+
+        for (int i = 0; i < spawnAmount; i++)
         {
             // Pick random indices
             int textIndex = Random.Range(0, availableTexts.Count);
@@ -30,6 +33,7 @@ public class NotesScripts : MonoBehaviour
 
             // Assign the unique text to the NoteInstance script on the prefab
             NoteInstance script = newNote.GetComponent<NoteInstance>();
+
             if (script != null)
             {
                 script.noteText = availableTexts[textIndex];
@@ -39,9 +43,8 @@ public class NotesScripts : MonoBehaviour
                 Debug.LogWarning("NoteSpawner: The Note Prefab is missing the NoteInstance script!");
             }
 
-            // 4. Remove used data so they don't repeat
             availableTexts.RemoveAt(textIndex);
             spawnPoints.RemoveAt(spotIndex);
         }
     }
-}
+ }
