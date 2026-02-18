@@ -10,6 +10,7 @@ public class NoteInstance : MonoBehaviour
         {
             NoteUIController.Instance.ShowNote(noteText);
             Destroy(gameObject);
+            Debug.Log("Player picked up a note with text: " + noteText);
         }
     }
 }
