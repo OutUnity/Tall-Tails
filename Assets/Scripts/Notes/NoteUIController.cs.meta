@@ -1,2 +1,14 @@
 fileFormatVersion: 2
 guid: 7aae9cbfcf343e64eb84c363f09000c9
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - notePanel: {instanceID: 0}
+  - noteTextUI: {instanceID: 0}
+  - player: {fileID: 5827657065584022179, guid: c611f9f76ce27bb47a7c4d8ead78a220, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
