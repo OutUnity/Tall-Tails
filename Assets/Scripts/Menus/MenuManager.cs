@@ -30,7 +30,8 @@ public class MenuManager : MonoBehaviour
         mapPanel.SetActive(false);
         notesPanel.SetActive(false);
         fadeGroup.alpha = 0f;
-
+        if (fadeGroup != null)
+            fadeGroup.alpha = 0f;  // start transparent
     }
     void Update()
     {
@@ -40,8 +41,27 @@ public class MenuManager : MonoBehaviour
 
     void HandleKeyboardInput()
     {
-        if (Input.GetKeyDown(KeyCode.M)) OpenMap();
-        if (Input.GetKeyDown(KeyCode.N)) OpenNotes();
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (currentState != MenuState.Closed)
+                CloseMenu();
+        }
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            if (currentState == MenuState.Closed)
+                OpenMap();
+            else
+                SwitchToMap();
+        }
+
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            if (currentState == MenuState.Closed)
+                OpenNotes();
+            else
+                SwitchToNotes();
+        }
     }
     /*
     void HandleControllerInput()
@@ -57,29 +77,37 @@ public class MenuManager : MonoBehaviour
     */
     public void OpenMap()
     {
-        if (isTransitioning) return;
+        if (isTransitioning || currentState != MenuState.Closed) return;
 
         OpenMenu();
-        SwitchToMap();
+
+        mapPanel.SetActive(true);
+        notesPanel.SetActive(false);
+
+        StartCoroutine(Fade(1f));
+        currentState = MenuState.Map;
     }
 
     public void OpenNotes()
     {
-        if (isTransitioning) return;
-        if (hudPanel != null)
-        {
-            hudPanel.SetActive(false);
-        }
+        if (isTransitioning || currentState != MenuState.Closed) return;
+
         OpenMenu();
-        SwitchToNotes();
+
+        notesPanel.SetActive(true);
+        mapPanel.SetActive(false);
+
+        StartCoroutine(Fade(1f));
+        currentState = MenuState.Notes;
     }
 
     void OpenMenu()
     {
-        if (hudPanel != null) { 
-            hudPanel.SetActive(false);
-        }
         mainMenuPanel.SetActive(true);
+
+        if (hudPanel != null)
+            hudPanel.SetActive(false);
+
         Time.timeScale = 0f;
 
         if (playerMovement != null)
@@ -88,7 +116,7 @@ public class MenuManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        currentState = MenuState.Map;
+        fadeGroup.alpha = 0f;
     }
 
     public void CloseMenu()
@@ -110,31 +138,30 @@ public class MenuManager : MonoBehaviour
 
     void SwitchToMap()
     {
-        if (currentState == MenuState.Map) return;
-
-        StartCoroutine(FadeSwitch(mapPanel, notesPanel));
-        currentState = MenuState.Map;
+        if (isTransitioning || currentState == MenuState.Map) return;
+        StartCoroutine(FadeSwitch(mapPanel, notesPanel, MenuState.Map));
     }
 
     void SwitchToNotes()
     {
-        if (currentState == MenuState.Notes) return;
-
-        StartCoroutine(FadeSwitch(notesPanel, mapPanel));
-        currentState = MenuState.Notes;
+        if (isTransitioning || currentState == MenuState.Notes) return;
+        StartCoroutine(FadeSwitch(notesPanel, mapPanel, MenuState.Notes));
     }
 
-    IEnumerator FadeSwitch(GameObject show, GameObject hide)
+    IEnumerator FadeSwitch(GameObject show, GameObject hide, MenuState newState)
     {
         isTransitioning = true;
 
+        // Fade out
         yield return Fade(0f);
 
         hide.SetActive(false);
         show.SetActive(true);
 
+        // Fade in
         yield return Fade(1f);
 
+        currentState = newState;
         isTransitioning = false;
     }
 
@@ -142,7 +169,7 @@ public class MenuManager : MonoBehaviour
     {
         float duration = 0.15f;
         float start = fadeGroup.alpha;
-        float time = 0;
+        float time = 0f;
 
         while (time < duration)
         {

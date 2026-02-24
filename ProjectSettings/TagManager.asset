@@ -6,6 +6,12 @@ TagManager:
   tags:
   - Environment
   - Notes
+  - Region1
+  - Region2
+  - Region3
+  - Region5
+  - Region6
+  - Region7
   layers:
   - Default
   - TransparentFX

@@ -1,8 +1,10 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PauseMenuController : MonoBehaviour
 {
     public GameObject pauseMenuPanel;        // assign the panel in inspector
+    public MenuManager menuManager;
     public MonoBehaviour playerMovement;     // your CharacterMovement script
     public GameObject hudPanel;
 
@@ -12,10 +14,13 @@ public class PauseMenuController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (!isPaused)
-                OpenPauseMenu();
-            else
-                ClosePauseMenu();
+            if (menuManager.currentState == MenuManager.MenuState.Closed)
+            {
+                if (!isPaused)
+                    OpenPauseMenu();
+                else
+                    ClosePauseMenu();
+            }
         }
     }
 
@@ -50,5 +55,11 @@ public class PauseMenuController : MonoBehaviour
         Cursor.visible = false;
 
         isPaused = false;
+    }
+    public void ReturnToMainMenu()
+    {
+        Time.timeScale = 1f; // ensure time is running
+        // Load your main menu scene here, e.g.:
+        SceneManager.LoadScene("MainMenu");
     }
 }
