@@ -77,7 +77,7 @@ public class CrystalManager : MonoBehaviour
             RegionData region = regions.Find(r => r.regionID == currentRegionID);
 
             if (region != null)
-                totalCrystalText.text = "Crystals: " + region.collected + " / " + region.maxCrystals;
+                totalCrystalText.text = region.collected + " / " + region.maxCrystals;
         }
     }
 
