@@ -81,6 +81,10 @@ public class MenuManager : MonoBehaviour
 
         OpenMenu();
 
+        // Update HUD to current region when opening map
+        if (CrystalManager.Instance != null)
+            CrystalManager.Instance.UpdateHUD();
+
         mapPanel.SetActive(true);
         notesPanel.SetActive(false);
 
@@ -139,12 +143,19 @@ public class MenuManager : MonoBehaviour
     void SwitchToMap()
     {
         if (isTransitioning || currentState == MenuState.Map) return;
+
+        // Update HUD before fade
+        if (CrystalManager.Instance != null)
+            CrystalManager.Instance.UpdateHUD();
+
         StartCoroutine(FadeSwitch(mapPanel, notesPanel, MenuState.Map));
     }
 
     void SwitchToNotes()
     {
         if (isTransitioning || currentState == MenuState.Notes) return;
+
+        // No HUD update needed here for crystals (still visible in map only)
         StartCoroutine(FadeSwitch(notesPanel, mapPanel, MenuState.Notes));
     }
 
