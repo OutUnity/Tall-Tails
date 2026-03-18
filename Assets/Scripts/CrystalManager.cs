@@ -25,26 +25,29 @@ public class CrystalManager : MonoBehaviour
     [Header("HUD")]
     public TextMeshProUGUI totalCrystalText;
 
+    [Header("Map Fog Reference")]
+    public List<GameObject> regionFogObjects; // assign 7 fog images
+
   
 
     void Awake()
     {
         Instance = this;
-        regions = new List<RegionData>
-        {
-            new RegionData { regionID = 1, maxCrystals = 6, collected = 0, unlocked = true },
-            new RegionData { regionID = 2, maxCrystals = 7, collected = 0, unlocked = false },
-            new RegionData { regionID = 3, maxCrystals = 7, collected = 0, unlocked = false },
-            new RegionData { regionID = 4, maxCrystals = 7, collected = 0, unlocked = false },
-            new RegionData { regionID = 5, maxCrystals = 7, collected = 0, unlocked = false },
-            new RegionData { regionID = 6, maxCrystals = 8, collected = 0, unlocked = false },
-            new RegionData { regionID = 7, maxCrystals = 8, collected = 0, unlocked = false }
-        };
+        
     }
 
     void Start()
     {
+
+        // Initialize fog based on the unlocked boolean
+        for (int i = 0; i < regions.Count; i++)
+        {
+            if (regionFogObjects[i] != null)
+                regionFogObjects[i].SetActive(!regions[i].unlocked);
+        }
+
         UpdateAllUI();
+
     }
 
     public void SetCurrentRegion(int regionID)
@@ -70,7 +73,20 @@ public class CrystalManager : MonoBehaviour
             UpdateHUD();
     }
 
-    void UpdateHUD()
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (regions == null || regionFogObjects == null) return;
+
+        for (int i = 0; i < regions.Count && i < regionFogObjects.Count; i++)
+        {
+            if (regionFogObjects[i] != null)
+                regionFogObjects[i].SetActive(!regions[i].unlocked);
+        }
+    }
+#endif
+
+    public void UpdateHUD()
     {
         if (totalCrystalText != null)
         {
@@ -101,6 +117,14 @@ public class CrystalManager : MonoBehaviour
     {
         RegionData region = regions.Find(r => r.regionID == regionID);
         if (region != null)
+        {
             region.unlocked = true;
+
+            // remove fog
+            if (regionFogObjects != null && regionID - 1 < regionFogObjects.Count)
+            {
+                regionFogObjects[regionID - 1].SetActive(false);
+            }
+        }
     }
 }
