@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 81b6f0bc573853a498835294ed4c0337
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 249580
+  packageName: Neural Terrain Generation
+  packageVersion: 1.4.1
+  assetPath: Assets/NeuralTerrainGeneration/Demo/Scripts/FirstPersonCharacterController.cs
+  uploadId: 597485

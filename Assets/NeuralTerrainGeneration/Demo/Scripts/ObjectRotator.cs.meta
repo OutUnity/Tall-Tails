@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: ef3756e42eca5f94f8e13ffeb5afa0b0
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 249580
+  packageName: Neural Terrain Generation
+  packageVersion: 1.4.1
+  assetPath: Assets/NeuralTerrainGeneration/Demo/Scripts/ObjectRotator.cs
+  uploadId: 597485

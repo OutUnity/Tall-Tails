@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0ca24b6884124e742b0fd5d27071cff1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 15600000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 249580
+  packageName: Neural Terrain Generation
+  packageVersion: 1.4.1
+  assetPath: Assets/NeuralTerrainGeneration/Demo/Terrain Data/Demo1/Demo1_Terrain07.asset
+  uploadId: 597485

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 2a034dca4a4954540bccf0f80bc5ee5d
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 249580
+  packageName: Neural Terrain Generation
+  packageVersion: 1.4.1
+  assetPath: Assets/NeuralTerrainGeneration/Demo/Prefabs/Player.prefab
+  uploadId: 597485
