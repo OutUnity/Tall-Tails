@@ -27,5 +27,9 @@ public class SettingsMenu : MonoBehaviour
         QualitySettings.SetQualityLevel(Settings.QualityLevel);
 
         audioMixer.SetFloat("Master", Mathf.Log10(Settings.volume) * 20);
+
+        // Update MusicManager volume too
+        if (MusicManager.Instance != null)
+            MusicManager.Instance.SetVolume(Settings.volume);
     } 
 }

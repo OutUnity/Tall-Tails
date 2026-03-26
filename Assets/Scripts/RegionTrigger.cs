@@ -1,15 +1,20 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class RegionTrigger : MonoBehaviour
 {
-    [Tooltip("Region ID assigned in CrystalManager")]
-    public int regionID = 1;
+    public int regionID;
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (!other.CompareTag("Player")) return;
+
+        // Tell CrystalManager (you already do this probably)
+        CrystalManager.Instance.SetCurrentRegion(regionID);
+
+        // 🎵 Tell MusicManager
+        if (MusicManager.Instance != null)
         {
-            CrystalManager.Instance.SetCurrentRegion(regionID);
+            MusicManager.Instance.SetRegion(regionID);
         }
     }
 }
