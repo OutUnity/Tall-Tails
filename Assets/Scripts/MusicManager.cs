@@ -6,12 +6,18 @@ using System.Collections.Generic;
 public class RegionMusic
 {
     public int regionID;
+
+    [Header("One-shot intro")]
+    public AudioClip introClip;
+
+    [Header("Looping playlist")]
     public List<AudioClip> playlist = new List<AudioClip>();
 }
 
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager Instance;
+    private int currentRegion = -1;
 
     [Header("Main Menu Music")]
     public List<AudioClip> mainMenuPlaylist = new List<AudioClip>();
@@ -57,17 +63,59 @@ public class MusicManager : MonoBehaviour
     // 🌍 PLAY REGION
     public void SetRegion(int regionID)
     {
+        if (regionID == currentRegion) return; // 🚫 prevents repeat
+
+        currentRegion = regionID;
+
         RegionMusic region = regions.Find(r => r.regionID == regionID);
 
-        if (region == null || region.playlist.Count == 0)
+        if (region == null)
         {
             Debug.LogWarning("No music found for region " + regionID);
             return;
         }
 
-        StartPlaylist(region.playlist);
-    }
+        if (musicRoutine != null)
+            StopCoroutine(musicRoutine);
 
+        musicRoutine = StartCoroutine(PlayRegionMusic(region));
+    }
+    IEnumerator PlayRegionMusic(RegionMusic region)
+    {
+        // 🎵 1. Fade out current music
+        yield return StartCoroutine(FadeOut());
+
+        // 🎯 2. Play intro (if exists)
+        if (region.introClip != null)
+        {
+            musicSource.clip = region.introClip;
+            musicSource.Play();
+
+            yield return new WaitForSeconds(region.introClip.length);
+        }
+
+        // 🎶 3. Start playlist
+        currentPlaylist = region.playlist;
+
+        if (currentPlaylist == null || currentPlaylist.Count == 0)
+            yield break;
+
+        yield return StartCoroutine(PlaylistLoop());
+    }
+    IEnumerator FadeOut()
+    {
+        float t = 0f;
+        float startVol = musicSource.volume;
+
+        while (t < fadeDuration)
+        {
+            t += Time.deltaTime;
+            musicSource.volume = Mathf.Lerp(startVol, 0f, t / fadeDuration);
+            yield return null;
+        }
+
+        musicSource.volume = 0f;
+    }
     // 🔁 START PLAYLIST
     void StartPlaylist(List<AudioClip> playlist)
     {

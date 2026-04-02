@@ -2543,21 +2543,28 @@ MonoBehaviour:
   - {fileID: 8300000, guid: c6b01e18a04fb684992e605a98bfa2a0, type: 3}
   regions:
   - regionID: 1
+    introClip: {fileID: 8300000, guid: 67583b1df87740e41b2542fe351fd91d, type: 3}
     playlist:
     - {fileID: 8300000, guid: 1c61e4b817d4967478ba866881d69ee8, type: 3}
     - {fileID: 8300000, guid: 4a24258e780c67243a48fd9d5706ef6b, type: 3}
     - {fileID: 8300000, guid: 5c81d18c987ef274a975066704f6a964, type: 3}
   - regionID: 2
+    introClip: {fileID: 8300000, guid: 67583b1df87740e41b2542fe351fd91d, type: 3}
     playlist: []
   - regionID: 3
+    introClip: {fileID: 8300000, guid: 67583b1df87740e41b2542fe351fd91d, type: 3}
     playlist: []
   - regionID: 4
+    introClip: {fileID: 8300000, guid: 67583b1df87740e41b2542fe351fd91d, type: 3}
     playlist: []
   - regionID: 5
+    introClip: {fileID: 8300000, guid: 67583b1df87740e41b2542fe351fd91d, type: 3}
     playlist: []
   - regionID: 6
+    introClip: {fileID: 8300000, guid: 67583b1df87740e41b2542fe351fd91d, type: 3}
     playlist: []
   - regionID: 7
+    introClip: {fileID: 8300000, guid: 67583b1df87740e41b2542fe351fd91d, type: 3}
     playlist: []
   musicSource: {fileID: 594580106}
   fadeDuration: 2

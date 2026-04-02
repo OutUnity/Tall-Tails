@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class PlayerRegionDetector : MonoBehaviour
 {
@@ -8,7 +9,9 @@ public class PlayerRegionDetector : MonoBehaviour
     {
         int region = RegionMapManager.Instance.GetRegionFromPosition(transform.position);
 
-        if (region != currentRegion && region != -1)
+        if (region == -1) return; // ignore invalid pixels
+
+        if (region != currentRegion)
         {
             currentRegion = region;
 
@@ -18,6 +21,10 @@ public class PlayerRegionDetector : MonoBehaviour
                 MusicManager.Instance.SetRegion(region);
 
             Debug.Log("Entered Region: " + region);
+
+            // 🎯 Show UI overlay
+            RegionUI.Instance.ShowRegion(region);
         }
     }
 }
+    
