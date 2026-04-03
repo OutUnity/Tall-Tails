@@ -31,4 +31,8 @@ public class SceneChange : MonoBehaviour
         if (CrystalManager.Instance != null)
             CrystalManager.Instance.SetCurrentRegion(1);
     }
+
+    public void quitGame() { 
+        Application.Quit();
+    }
 }

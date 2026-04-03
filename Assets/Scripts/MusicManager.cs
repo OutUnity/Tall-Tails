@@ -53,6 +53,14 @@ public class MusicManager : MonoBehaviour
         musicSource.spatialBlend = 0f; // always 2D
         musicSource.volume = volume;
     }
+    void Start()
+    {
+        // If no region yet, assume main menu
+        if (currentRegion == -1)
+        {
+            PlayMainMenu();
+        }
+    }
 
     // 🎵 PLAY MAIN MENU
     public void PlayMainMenu()
