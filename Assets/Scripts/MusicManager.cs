@@ -62,13 +62,13 @@ public class MusicManager : MonoBehaviour
         }
     }
 
-    // 🎵 PLAY MAIN MENU
+    // PLAY MAIN MENU
     public void PlayMainMenu()
     {
         StartPlaylist(mainMenuPlaylist);
     }
 
-    // 🌍 PLAY REGION
+    // PLAY REGION
     public void SetRegion(int regionID)
     {
         if (regionID == currentRegion) return; // 🚫 prevents repeat
@@ -90,10 +90,10 @@ public class MusicManager : MonoBehaviour
     }
     IEnumerator PlayRegionMusic(RegionMusic region)
     {
-        // 🎵 1. Fade out current music
+        // 1. Fade out current music
         yield return StartCoroutine(FadeOut());
 
-        // 🎯 2. Play intro (if exists)
+        // 2. Play intro (if exists)
         if (region.introClip != null)
         {
             musicSource.clip = region.introClip;
@@ -102,7 +102,7 @@ public class MusicManager : MonoBehaviour
             yield return new WaitForSeconds(region.introClip.length);
         }
 
-        // 🎶 3. Start playlist
+        // 3. Start playlist
         currentPlaylist = region.playlist;
 
         if (currentPlaylist == null || currentPlaylist.Count == 0)
@@ -124,7 +124,7 @@ public class MusicManager : MonoBehaviour
 
         musicSource.volume = 0f;
     }
-    // 🔁 START PLAYLIST
+    // START PLAYLIST
     void StartPlaylist(List<AudioClip> playlist)
     {
         if (playlist == null || playlist.Count == 0) return;
@@ -192,7 +192,7 @@ public class MusicManager : MonoBehaviour
         musicSource.volume = volume;
     }
 
-    // 🔉 FADE OUT (for scene change)
+   //FADE OUT (for scene change)
     public void FadeOutMusic()
     {
         if (musicRoutine != null)

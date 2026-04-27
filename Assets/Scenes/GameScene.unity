@@ -5267,7 +5267,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PauseMenuController
   pauseMenuPanel: {fileID: 826477395}
   menuManager: {fileID: 1714706927}
-  playerMovement: {fileID: 0}
+  playerMovement: {fileID: 919132149246214034}
   hudPanel: {fileID: 1527606780}
 --- !u!1 &44694037
 GameObject:
@@ -12129,7 +12129,7 @@ GameObject:
   - component: {fileID: 89949354}
   - component: {fileID: 89949353}
   m_Layer: 0
-  m_Name: fr
+  m_Name: Water
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -56340,7 +56340,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00019751451}
+  m_AnchoredPosition: {x: 0, y: 80.001}
   m_SizeDelta: {x: 0, y: 596}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &418009993
@@ -95618,7 +95618,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 738123369}
-  - component: {fileID: 738123371}
   - component: {fileID: 738123370}
   m_Layer: 5
   m_Name: RegionInfo
@@ -95656,25 +95655,9 @@ CanvasGroup:
   m_GameObject: {fileID: 738123368}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
---- !u!114 &738123371
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 738123368}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5602c496d3b7b04db570644cd369466, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RegionUI
-  regionText: {fileID: 1340525078}
-  canvasGroup: {fileID: 738123370}
-  fadeDuration: 0.5
-  displayTime: 2
 --- !u!1 &738279150
 GameObject:
   m_ObjectHideFlags: 0
@@ -215179,7 +215162,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1922204589}
   m_HandleRect: {fileID: 1922204588}
   m_Direction: 2
-  m_Value: 0.99999774
+  m_Value: -0.000012207031
   m_Size: 0.86577183
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -223976,7 +223959,7 @@ MonoBehaviour:
   notesPanel: {fileID: 1737341259}
   fadeGroup: {fileID: 289149762}
   hudPanel: {fileID: 1527606780}
-  playerMovement: {fileID: 0}
+  playerMovement: {fileID: 919132149246214034}
 --- !u!1 &1714923892
 GameObject:
   m_ObjectHideFlags: 0
@@ -269291,6 +269274,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2069003340}
   - component: {fileID: 2069003341}
+  - component: {fileID: 2069003342}
   m_Layer: 0
   m_Name: RegionManager
   m_TagString: Untagged
@@ -269326,8 +269310,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RegionMapManager
   regionMap: {fileID: 2800000, guid: 82f79fe276202884eaf3a2690fe238c7, type: 3}
-  worldMin: {x: 0, y: 0}
-  worldMax: {x: 2000, y: 1000}
+  worldMin: {x: -500, y: -500}
+  worldMax: {x: 1500, y: 500}
+--- !u!114 &2069003342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2069003339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5602c496d3b7b04db570644cd369466, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RegionUI
+  regionText: {fileID: 1340525078}
+  canvasGroup: {fileID: 738123370}
+  fadeDuration: 0.5
+  displayTime: 3
 --- !u!1 &2070739322
 GameObject:
   m_ObjectHideFlags: 0
@@ -280664,12 +280664,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
-  m_ScreenMatchMode: 2
-  m_MatchWidthOrHeight: 0
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -280976,6 +280976,29 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6282729893281767651, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
   m_PrefabInstance: {fileID: 4398350737184948576}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &919132149246214034 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6241469638773252219, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+  m_PrefabInstance: {fileID: 4398350737184948576}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132149246214031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 534fdc51872081540a6d0a7ca2bcbefd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterMovement
+--- !u!114 &919132149246214038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132149246214031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 573e0ea5f493c6441947fba6650e91b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRegionDetector
 --- !u!222 &985009815944791762
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -281132,6 +281155,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 626390198926050780, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 59001f7490397e3478aceaf4ee62d010, type: 2}
     - target: {fileID: 1255174336877111288, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
       propertyPath: m_LocalPosition.y
       value: 2
@@ -281216,18 +281243,69 @@ PrefabInstance:
       propertyPath: field of view
       value: 21.14755
       objectReference: {fileID: 0}
+    - target: {fileID: 6241469638773252219, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: jumpForce
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6241469638773252219, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: moveSpeed
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6241469638773252219, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: shakeDecay
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6241469638773252219, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: bobAmplitude
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 6241469638773252219, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: bobFrequency
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6241469638773252219, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: dashCooldown
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6241469638773252219, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: dashDuration
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6241469638773252219, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: shakeIntensity
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6241469638773252219, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: mouseSensitivity
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 6282729893281767651, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
       propertyPath: m_Name
-      value: Fox
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 8241466552567950348, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
       propertyPath: m_RenderPostProcessing
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8386361690584277581, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: m_Mass
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8386361690584277581, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: m_IsKinematic
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8386361690584277581, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6282729893281767651, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 919132149246214038}
   m_SourcePrefab: {fileID: 100100000, guid: e9f5961d0f01d65468d31fc512ab379c, type: 3}
 --- !u!114 &4439774048467456854
 MonoBehaviour:
@@ -281308,7 +281386,6 @@ GameObject:
   - component: {fileID: 1364435217080471431}
   - component: {fileID: 4988355148231217239}
   - component: {fileID: 2134206527133770916}
-  - component: {fileID: 7513720998326118119}
   m_Layer: 5
   m_Name: NoteCanvas
   m_TagString: Untagged
@@ -281546,21 +281623,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &7513720998326118119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4848430160343360320}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7aae9cbfcf343e64eb84c363f09000c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NoteUIController
-  notePanel: {fileID: 3566156816972547988}
-  noteTextUI: {fileID: 566683528001417038}
-  player: {fileID: 0}
 --- !u!222 &7728063499861998202
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -281613,7 +281675,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7513720998326118119}
+      - m_Target: {fileID: 2128154945}
         m_TargetAssemblyTypeName: NoteUIController, Assembly-CSharp
         m_MethodName: CloseNote
         m_Mode: 1

@@ -7,7 +7,15 @@ public class PlayerRegionDetector : MonoBehaviour
 
     void Update()
     {
-        int region = RegionMapManager.Instance.GetRegionFromPosition(transform.position);
+
+        if (RegionMapManager.Instance == null)
+        {
+            Debug.LogError("RegionMapManager is NULL!");
+            return;
+        }
+        
+
+            int region = RegionMapManager.Instance.GetRegionFromPosition(transform.position);
 
         if (region == -1) return; // ignore invalid pixels
 
@@ -25,6 +33,7 @@ public class PlayerRegionDetector : MonoBehaviour
             // 🎯 Show UI overlay
             RegionUI.Instance.ShowRegion(region);
         }
+        //Debug.Log("Current Region: " + currentRegion);
     }
 }
     

@@ -17,11 +17,15 @@ public class RegionUI : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        canvasGroup.alpha = 0;
+
+        if (canvasGroup != null)
+            canvasGroup.alpha = 0;
     }
 
     public void ShowRegion(int regionID)
     {
+        Debug.Log("ShowRegion called: " + regionID);
+
         string regionName = GetRegionName(regionID);
 
         if (currentRoutine != null)
@@ -32,15 +36,22 @@ public class RegionUI : MonoBehaviour
 
     IEnumerator ShowRoutine(string regionName)
     {
+        if (regionText == null || canvasGroup == null)
+        {
+            Debug.LogError("RegionUI references not set!");
+            yield break;
+        }
+
         regionText.text = regionName;
 
         // Fade in
-        yield return Fade(0, 1);
+        yield return StartCoroutine(Fade(0, 1));
 
-        yield return new WaitForSeconds(2f);
+        // Stay visible
+        yield return new WaitForSeconds(displayTime);
 
         // Fade out
-        yield return Fade(1, 0);
+        yield return StartCoroutine(Fade(1, 0));
     }
 
     IEnumerator Fade(float start, float end)

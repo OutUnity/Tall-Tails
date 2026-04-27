@@ -2,65 +2,271 @@ using UnityEngine;
 
 public class CharacterMovement : MonoBehaviour
 {
-    [SerializeField] public float moveSpeed = 5f; // Speed at which the character moves
-    [SerializeField] public float jumpForce = 10f; // Force applied when the character jumps
-    [SerializeField] private float xRotation = 0f; // Limit for the character's rotation on the x-axis
-    [SerializeField] private bool isGrounded; // Flag to check if the character is on the ground
+    [Header("Movement")]
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float jumpForce = 10f;
 
-    //mouse look variables
-    [SerializeField] private float mouseSensitivity = 100f; // Sensitivity for mouse movement
+    [Header("Dash")]
+    [SerializeField] private float dashForce = 12f;
+    [SerializeField] private float dashDuration = 0.2f;
+    [SerializeField] private float dashCooldown = 1.2f;
+    [SerializeField] private float runMultiplier = 1.5f;
 
-    public Transform cameraHolder;
-    private Rigidbody rb; // Reference to the Rigidbody component for physics-based movement
+    private bool isDashing;
+    private bool canDash = true;
+    private float dashTimeLeft;
+    private float dashCooldownTimer;
+
+    [Header("Camera")]
+    [SerializeField] private float mouseSensitivity = 100f;
+    [SerializeField] private Transform cameraHolder;
+
+    [Header("Camera Bob")]
+    [SerializeField] private float bobFrequency = 1.5f;
+    [SerializeField] private float bobAmplitude = 0.05f;
+
+    [Header("Camera Shake")]
+    [SerializeField] private float shakeIntensity = 0.15f;
+    [SerializeField] private float shakeDecay = 6f;
+
+    [Header("Ground Check")]
+    [SerializeField] private bool isGrounded;
+
+    private Animator animator;
+    private float idleTimer;
+    [SerializeField] private float idleThreshold = 2f;
+
+    private Rigidbody rb;
+
+    private float xRotation = 0f;
+    private float targetXRotation = 0f;
+
+    private Vector3 baseCameraPos;
+    private float bobTimer;
+
+    private float shakeStrength;
+    private float shakeTimer;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>(); // Get the Rigidbody component attached to this GameObject
-        rb.freezeRotation = true; // Prevent the Rigidbody from rotating due to physics interactions
+        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
+        rb.freezeRotation = true;
+
+        xRotation = cameraHolder.localEulerAngles.x;
+        if (xRotation > 180f)
+            xRotation -= 360f;
+
+        targetXRotation = xRotation;
+
+        baseCameraPos = cameraHolder.localPosition;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
-    private void Update()
+
+    void Update()
     {
-        mouseLook();
-        jump(); // Call the jump method to check for jump input and apply jump force if necessary
+        MouseLook();
+        HandleJump();
+        HandleDashInput();
+        HandleDashTimers();
+
+        HandleCameraBob();
+        HandleCameraShake();
+        HandleAnimations();
     }
-    private void FixedUpdate()
+
+    void FixedUpdate()
     {
-        // Get input for horizontal and vertical movement
+        HandleMovement();
+        HandleDashMovement();
+    }
+
+    void HandleMovement()
+    {
+        if (isDashing) return;
+
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
-        // Calculate movement direction based on input and camera orientation
-        Vector3 moveDirection = (cameraHolder.forward * vertical + cameraHolder.right * horizontal).normalized;
-        // Move the character in the calculated direction
-        rb.MovePosition(transform.position + moveDirection * moveSpeed * Time.fixedDeltaTime);
+        Vector3 forward = cameraHolder.forward;
+        Vector3 right = cameraHolder.right;
 
-        // Check for jump input and if the character is grounded
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        forward.y = 0f;
+        right.y = 0f;
+
+        forward.Normalize();
+        right.Normalize();
+
+        float speedMultiplier = Input.GetKey(KeyCode.LeftShift) ? runMultiplier : 1f;
+
+        Vector3 moveDirection = (forward * vertical + right * horizontal).normalized * speedMultiplier;
+
+        rb.MovePosition(transform.position + moveDirection * moveSpeed * Time.fixedDeltaTime);
+    }
+    void HandleAnimations()
+    {
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        Vector2 input = new Vector2(horizontal, vertical);
+        float speed = input.magnitude;
+
+        // Send speed to animator
+        animator.SetFloat("Speed", speed * (Input.GetKey(KeyCode.LeftShift) ? 2f : 1f));
+
+        // Ground state
+        animator.SetBool("Grounded", isGrounded);
+
+        // Idle timer logic
+        if (speed > 0.1f)
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse); // Apply an upward force to make the character jump
-            isGrounded = false; // Set grounded flag to false until the character lands again
+            idleTimer = 0f;
+        }
+        else
+        {
+            idleTimer += Time.deltaTime;
+        }
+
+        // Optional: trigger AFK idle (if you add animation state later)
+        if (idleTimer > idleThreshold)
+        {
+            // Example hook (only if you add AFK idle animation state)
+            // animator.SetTrigger("IdleAFK");
         }
     }
-    void mouseLook()
+
+    void MouseLook()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime; // Get horizontal mouse movement
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime; // Get vertical mouse movement
-        xRotation -= mouseY; // Adjust the xRotation based on vertical mouse movement
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f); // Clamp the xRotation to prevent excessive rotation
-        cameraHolder.localRotation = Quaternion.Euler(xRotation, 0f, 0f); // Rotate the camera holder based on xRotation
-        transform.Rotate(Vector3.up * mouseX); // Rotate the character horizontally based on horizontal mouse movement
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        targetXRotation -= mouseY;
+        targetXRotation = Mathf.Clamp(targetXRotation, -40f, 60f);
+
+        xRotation = Mathf.Lerp(xRotation, targetXRotation, 0.1f);
+
+        cameraHolder.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        transform.Rotate(Vector3.up * mouseX);
     }
-    void jump() 
+
+    void HandleJump()
     {
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGrounded = false;
+
+            animator.SetTrigger("Jump");
         }
     }
-    void OnCollisionStay(Collision collision)
+
+    void HandleDashInput()
     {
-        isGrounded = true; // Set grounded flag to true when the character is in contact with a surface (e.g., the ground)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
+        {
+            StartDash();
+        }
     }
 
+    void StartDash()
+    {
+        isDashing = true;
+        canDash = false;
+        dashTimeLeft = dashDuration;
+
+        shakeStrength = shakeIntensity;
+    }
+
+    void HandleDashMovement()
+    {
+        if (!isDashing) return;
+
+        Vector3 forward = cameraHolder.forward;
+        forward.y = 0f;
+        forward.Normalize();
+
+        rb.MovePosition(transform.position + forward * dashForce * Time.fixedDeltaTime);
+    }
+
+    void HandleDashTimers()
+    {
+        if (isDashing)
+        {
+            dashTimeLeft -= Time.deltaTime;
+            if (dashTimeLeft <= 0)
+            {
+                isDashing = false;
+                dashCooldownTimer = dashCooldown;
+            }
+        }
+
+        if (!canDash)
+        {
+            dashCooldownTimer -= Time.deltaTime;
+            if (dashCooldownTimer <= 0)
+            {
+                canDash = true;
+            }
+        }
+    }
+
+    void HandleCameraBob()
+    {
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        bool isMoving = Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f;
+
+        if (isMoving && isGrounded && !isDashing)
+        {
+            bobTimer += Time.deltaTime * bobFrequency;
+
+            float bobOffset = Mathf.Sin(bobTimer) * bobAmplitude;
+
+            baseCameraPos.y = cameraHolder.localPosition.y;
+            baseCameraPos.y = 2f; // ensure stable baseline
+            baseCameraPos = cameraHolder.parent.InverseTransformPoint(cameraHolder.parent.TransformPoint(baseCameraPos));
+
+            cameraHolder.localPosition = baseCameraPos + new Vector3(0f, bobOffset, 0f);
+        }
+        else
+        {
+            bobTimer = 0f;
+            cameraHolder.localPosition = Vector3.Lerp(
+                cameraHolder.localPosition,
+                baseCameraPos,
+                Time.deltaTime * 5f
+            );
+        }
+    }
+
+    void HandleCameraShake()
+    {
+        Vector3 shakeOffset = Vector3.zero;
+
+        if (shakeStrength > 0)
+        {
+            shakeTimer += Time.deltaTime * 25f;
+
+            float rumble = Mathf.Sin(shakeTimer) * shakeStrength;
+
+            shakeOffset = new Vector3(rumble, 0f, 0f);
+
+            shakeStrength -= Time.deltaTime * shakeDecay;
+        }
+        else
+        {
+            shakeTimer = 0f;
+        }
+
+        // final camera composition (prevents drift)
+        cameraHolder.localPosition = baseCameraPos + shakeOffset;
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        isGrounded = true;
+    }
 }
