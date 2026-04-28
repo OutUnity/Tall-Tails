@@ -4,62 +4,58 @@ public class CharacterMovement : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float runMultiplier = 1.5f;
     [SerializeField] private float jumpForce = 10f;
+
+    [Header("Rotation")]
+    [SerializeField] private float turnSpeed = 120f;
+    [SerializeField] private float turnSmoothTime = 0.1f;
+
+    [Header("Camera")]
+    [SerializeField] private float mouseSensitivity = 2f;
+    [SerializeField] private float cameraSmooth = 0.1f;
+
+    [Header("Camera Limits")]
+    [SerializeField] private float maxLookUp = 60f;
+    [SerializeField] private float maxLookDown = -20f;
+
+    [Header("Camera Feel")]
+    [SerializeField] private float cameraSoftness = 5f;
+
+    [Header("References")]
+    [SerializeField] private Transform visual;
+    [SerializeField] private Transform cameraHolder;
 
     [Header("Dash")]
     [SerializeField] private float dashForce = 12f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1.2f;
-    [SerializeField] private float runMultiplier = 1.5f;
 
     private bool isDashing;
     private bool canDash = true;
     private float dashTimeLeft;
     private float dashCooldownTimer;
 
-    [Header("Camera")]
-    [SerializeField] private float mouseSensitivity = 100f;
-    [SerializeField] private Transform cameraHolder;
-
-    [Header("Camera Bob")]
-    [SerializeField] private float bobFrequency = 1.5f;
-    [SerializeField] private float bobAmplitude = 0.05f;
-
-    [Header("Camera Shake")]
-    [SerializeField] private float shakeIntensity = 0.15f;
-    [SerializeField] private float shakeDecay = 6f;
-
-    [Header("Ground Check")]
-    [SerializeField] private bool isGrounded;
-
-    private Animator animator;
-    private float idleTimer;
-    [SerializeField] private float idleThreshold = 2f;
-
     private Rigidbody rb;
+    private Animator animator;
 
     private float xRotation = 0f;
     private float targetXRotation = 0f;
 
-    private Vector3 baseCameraPos;
-    private float bobTimer;
+    // Smooth turn system
+    private float turnSmoothVelocity;
+    private float currentTurnValue;
 
-    private float shakeStrength;
-    private float shakeTimer;
+    private float cameraRotVelocity;
+
+    private bool isGrounded;
 
     void Start()
     {
-        animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
-        xRotation = cameraHolder.localEulerAngles.x;
-        if (xRotation > 180f)
-            xRotation -= 360f;
-
-        targetXRotation = xRotation;
-
-        baseCameraPos = cameraHolder.localPosition;
+        animator = visual.GetComponent<Animator>();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -72,101 +68,140 @@ public class CharacterMovement : MonoBehaviour
         HandleDashInput();
         HandleDashTimers();
 
-        HandleCameraBob();
-        HandleCameraShake();
         HandleAnimations();
     }
 
     void FixedUpdate()
     {
         HandleMovement();
+        HandleRotation();
         HandleDashMovement();
     }
 
+    // ---------------- MOVEMENT ----------------
+
     void HandleMovement()
     {
-        if (isDashing) return;
+        if (isDashing)
+        {
+            return;
+        }
 
-        float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
-        Vector3 forward = cameraHolder.forward;
-        Vector3 right = cameraHolder.right;
-
+        Vector3 forward = visual.forward;
         forward.y = 0f;
-        right.y = 0f;
-
         forward.Normalize();
-        right.Normalize();
 
-        float speedMultiplier = Input.GetKey(KeyCode.LeftShift) ? runMultiplier : 1f;
+        Vector3 moveDirection = forward * vertical;
 
-        Vector3 moveDirection = (forward * vertical + right * horizontal).normalized * speedMultiplier;
+        float speedMultiplier = 1f;
 
-        rb.MovePosition(transform.position + moveDirection * moveSpeed * Time.fixedDeltaTime);
+        if (vertical > 0f)
+        {
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                speedMultiplier = runMultiplier;
+            }
+        }
+
+        Vector3 velocity = moveDirection * moveSpeed * speedMultiplier;
+        velocity.y = rb.linearVelocity.y;
+
+        rb.linearVelocity = velocity;
     }
-    void HandleAnimations()
+
+    // ---------------- ROTATION (VISUAL ONLY) ----------------
+
+    void HandleRotation()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        float mouseX = Input.GetAxis("Mouse X");
 
-        Vector2 input = new Vector2(horizontal, vertical);
-        float speed = input.magnitude;
+        float rawTurn = mouseX;
 
-        // Send speed to animator
-        animator.SetFloat("Speed", speed * (Input.GetKey(KeyCode.LeftShift) ? 2f : 1f));
-
-        // Ground state
-        animator.SetBool("Grounded", isGrounded);
-
-        // Idle timer logic
-        if (speed > 0.1f)
+        if (rawTurn < -1f)
         {
-            idleTimer = 0f;
+            rawTurn = -1f;
         }
-        else
+        else if (rawTurn > 1f)
         {
-            idleTimer += Time.deltaTime;
+            rawTurn = 1f;
         }
 
-        // Optional: trigger AFK idle (if you add animation state later)
-        if (idleTimer > idleThreshold)
-        {
-            // Example hook (only if you add AFK idle animation state)
-            // animator.SetTrigger("IdleAFK");
-        }
+        currentTurnValue = Mathf.SmoothDamp(
+            currentTurnValue,
+            rawTurn,
+            ref turnSmoothVelocity,
+            turnSmoothTime
+        );
+
+        float rotationAmount = currentTurnValue * turnSpeed * Time.fixedDeltaTime;
+
+        visual.Rotate(0f, rotationAmount, 0f);
     }
+
+    // ---------------- CAMERA (SOFT PITCH SYSTEM) ----------------
 
     void MouseLook()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
+        // Horizontal player rotation
+        transform.Rotate(Vector3.up * mouseX);
+
+        // Vertical camera input
         targetXRotation -= mouseY;
-        targetXRotation = Mathf.Clamp(targetXRotation, -40f, 60f);
 
-        xRotation = Mathf.Lerp(xRotation, targetXRotation, 0.1f);
+        // SOFT LIMIT SYSTEM (elastic resistance)
+        if (targetXRotation > maxLookUp)
+        {
+            float excess = targetXRotation - maxLookUp;
+            targetXRotation -= excess * Time.deltaTime * cameraSoftness;
+        }
+        else if (targetXRotation < maxLookDown)
+        {
+            float excess = maxLookDown - targetXRotation;
+            targetXRotation += excess * Time.deltaTime * cameraSoftness;
+        }
+
+        // Smooth camera motion
+        xRotation = Mathf.SmoothDamp(
+            xRotation,
+            targetXRotation,
+            ref cameraRotVelocity,
+            cameraSmooth
+        );
 
         cameraHolder.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        transform.Rotate(Vector3.up * mouseX);
     }
+
+    // ---------------- JUMP ----------------
 
     void HandleJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isGrounded = false;
+            if (isGrounded)
+            {
+                rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+                isGrounded = false;
 
-            animator.SetTrigger("Jump");
+                animator.SetTrigger("Jump");
+            }
         }
     }
 
+    // ---------------- DASH ----------------
+
     void HandleDashInput()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
+        if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            StartDash();
+            if (canDash)
+            {
+                StartDash();
+            }
         }
     }
 
@@ -175,15 +210,16 @@ public class CharacterMovement : MonoBehaviour
         isDashing = true;
         canDash = false;
         dashTimeLeft = dashDuration;
-
-        shakeStrength = shakeIntensity;
     }
 
     void HandleDashMovement()
     {
-        if (!isDashing) return;
+        if (!isDashing)
+        {
+            return;
+        }
 
-        Vector3 forward = cameraHolder.forward;
+        Vector3 forward = visual.forward;
         forward.y = 0f;
         forward.Normalize();
 
@@ -195,7 +231,8 @@ public class CharacterMovement : MonoBehaviour
         if (isDashing)
         {
             dashTimeLeft -= Time.deltaTime;
-            if (dashTimeLeft <= 0)
+
+            if (dashTimeLeft <= 0f)
             {
                 isDashing = false;
                 dashCooldownTimer = dashCooldown;
@@ -205,64 +242,48 @@ public class CharacterMovement : MonoBehaviour
         if (!canDash)
         {
             dashCooldownTimer -= Time.deltaTime;
-            if (dashCooldownTimer <= 0)
+
+            if (dashCooldownTimer <= 0f)
             {
                 canDash = true;
             }
         }
     }
 
-    void HandleCameraBob()
+    // ---------------- ANIMATION ----------------
+
+    void HandleAnimations()
     {
-        float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
-        bool isMoving = Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f;
+        float speed = 0f;
 
-        if (isMoving && isGrounded && !isDashing)
+        if (Mathf.Abs(vertical) < 0.1f)
         {
-            bobTimer += Time.deltaTime * bobFrequency;
-
-            float bobOffset = Mathf.Sin(bobTimer) * bobAmplitude;
-
-            baseCameraPos.y = cameraHolder.localPosition.y;
-            baseCameraPos.y = 2f; // ensure stable baseline
-            baseCameraPos = cameraHolder.parent.InverseTransformPoint(cameraHolder.parent.TransformPoint(baseCameraPos));
-
-            cameraHolder.localPosition = baseCameraPos + new Vector3(0f, bobOffset, 0f);
+            speed = 0f;
         }
         else
         {
-            bobTimer = 0f;
-            cameraHolder.localPosition = Vector3.Lerp(
-                cameraHolder.localPosition,
-                baseCameraPos,
-                Time.deltaTime * 5f
-            );
-        }
-    }
-
-    void HandleCameraShake()
-    {
-        Vector3 shakeOffset = Vector3.zero;
-
-        if (shakeStrength > 0)
-        {
-            shakeTimer += Time.deltaTime * 25f;
-
-            float rumble = Mathf.Sin(shakeTimer) * shakeStrength;
-
-            shakeOffset = new Vector3(rumble, 0f, 0f);
-
-            shakeStrength -= Time.deltaTime * shakeDecay;
-        }
-        else
-        {
-            shakeTimer = 0f;
+            if (vertical > 0f)
+            {
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    speed = 1f;
+                }
+                else
+                {
+                    speed = 0.5f;
+                }
+            }
+            else
+            {
+                speed = -0.5f;
+            }
         }
 
-        // final camera composition (prevents drift)
-        cameraHolder.localPosition = baseCameraPos + shakeOffset;
+        animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
+        animator.SetFloat("Turn", currentTurnValue, 0.1f, Time.deltaTime);
+        animator.SetBool("Grounded", isGrounded);
     }
 
     void OnCollisionStay(Collision collision)
