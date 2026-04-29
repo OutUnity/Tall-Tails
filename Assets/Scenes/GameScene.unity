@@ -56340,7 +56340,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 80.00008}
+  m_AnchoredPosition: {x: 0, y: 80.00001}
   m_SizeDelta: {x: 0, y: 596}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &418009993
@@ -111302,10 +111302,10 @@ GameObject:
   m_Component:
   - component: {fileID: 847869127}
   - component: {fileID: 847869132}
-  - component: {fileID: 847869131}
+  - component: {fileID: 847869134}
   - component: {fileID: 847869129}
   - component: {fileID: 847869128}
-  - component: {fileID: 847869133}
+  - component: {fileID: 847869135}
   m_Layer: 0
   m_Name: Physics
   m_TagString: Untagged
@@ -111321,7 +111321,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 847869126}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -111360,27 +111360,6 @@ MonoBehaviour:
   Regenerate: 1
   regen: 0.1
   regenUpdateInterval: 1
---- !u!65 &847869131
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 847869126}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.7416379, y: 1, z: 1}
-  m_Center: {x: 0, y: 0.5, z: 2.7729807e-18}
 --- !u!54 &847869132
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -111405,10 +111384,33 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 1
---- !u!114 &847869133
+--- !u!136 &847869134
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 847869126}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.7235287
+  m_Height: 1.5389916
+  m_Direction: 2
+  m_Center: {x: -4.625232e-16, y: 0.73284245, z: 0.21745276}
+--- !u!114 &847869135
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -111417,24 +111419,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 847869126}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 534fdc51872081540a6d0a7ca2bcbefd, type: 3}
+  m_Script: {fileID: 11500000, guid: e0086e38593ab654facdd9a1a2e6f662, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterMovement
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMotor
   moveSpeed: 6
   runMultiplier: 1.5
   jumpForce: 20
-  turnSpeed: 120
-  turnSmoothTime: 0.1
-  mouseSensitivity: 2
-  cameraSmooth: 0.1
-  maxLookUp: 10
-  maxLookDown: -35
-  cameraSoftness: 5
-  visual: {fileID: 1007428510}
-  cameraHolder: {fileID: 3197928306259502744}
   dashForce: 12
-  dashDuration: 1
-  dashCooldown: 1
+  dashDuration: 3
+  dashCooldown: 6
 --- !u!1 &848550728
 GameObject:
   m_ObjectHideFlags: 0
@@ -132377,6 +132370,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1007428510}
   - component: {fileID: 1007428511}
+  - component: {fileID: 1007428512}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -132423,6 +132417,21 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1007428512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1007428509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3af0c74ca9973844d81421e0cb92da94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimator
+  visual: {fileID: 2594524075573635575}
+  animator: {fileID: 1007428511}
+  visualTurnSmooth: 10
 --- !u!1 &1007869971
 GameObject:
   m_ObjectHideFlags: 0
@@ -215361,8 +215370,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1922204589}
   m_HandleRect: {fileID: 1922204588}
   m_Direction: 2
-  m_Value: -0.00000076293946
-  m_Size: 0.8655202
+  m_Value: -0.00000076294003
+  m_Size: 0.86155885
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -281880,14 +281889,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7654616599679541635}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -224.42, y: 21.59, z: 186.61052}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 847869127}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &2643763020459698684
 Transform:
   m_ObjectHideFlags: 0
@@ -282819,6 +282828,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3197928306259502744}
+  - component: {fileID: 7159141782997704072}
   m_Layer: 0
   m_Name: CameraHolder
   m_TagString: Untagged
@@ -282826,6 +282836,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &7159141782997704072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7159141782997704071}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b0a40d8d7fb18541b6b447f44ecb81e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCamera
+  cameraHolder: {fileID: 3197928306259502744}
+  cameraSmooth: 0.1
+  maxLookUp: 60
+  maxLookDown: -20
+  cameraSoftness: 5
+  mouseSensitivity: 2
+  edgeTurnStrength: 120
+  edgeExponent: 1.5
+  recenterSpeed: 2
+  recenterDeadZone: 0.1
+  cameraFollowSmooth: 5
 --- !u!4 &7231779065514411569
 Transform:
   m_ObjectHideFlags: 0
@@ -283006,6 +283039,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2594524075573635575}
+  - component: {fileID: 7654616599679541636}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -283013,6 +283047,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &7654616599679541636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7654616599679541635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff1cb42d8ea3eab4184e50405ee81865, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  state: 0
+  motor: {fileID: 847869135}
+  playerCamera: {fileID: 7159141782997704072}
+  playerAnimator: {fileID: 1007428512}
 --- !u!4 &7681621668568385166
 Transform:
   m_ObjectHideFlags: 0

@@ -7,12 +7,10 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] private float runMultiplier = 1.5f;
     [SerializeField] private float jumpForce = 10f;
 
-    [Header("Rotation")]
-    [SerializeField] private float turnSpeed = 120f;
-    [SerializeField] private float turnSmoothTime = 0.1f;
+    [Header("Visual Rotation")]
+    [SerializeField] private float visualTurnSmooth = 10f;
 
     [Header("Camera")]
-    [SerializeField] private float mouseSensitivity = 2f;
     [SerializeField] private float cameraSmooth = 0.1f;
 
     [Header("Camera Limits")]
@@ -21,6 +19,18 @@ public class CharacterMovement : MonoBehaviour
 
     [Header("Camera Feel")]
     [SerializeField] private float cameraSoftness = 5f;
+
+    [Header("Hybrid Turning")]
+    [SerializeField] private float mouseSensitivity = 2f;
+    [SerializeField] private float edgeTurnStrength = 120f;
+    [SerializeField] private float edgeExponent = 1.5f;
+
+    [Header("Recenter")]
+    [SerializeField] private float recenterSpeed = 2f;
+    [SerializeField] private float recenterDeadZone = 0.1f;
+
+    [Header("Camera Follow Lag")]
+    [SerializeField] private float cameraFollowSmooth = 5f;
 
     [Header("References")]
     [SerializeField] private Transform visual;
@@ -41,14 +51,14 @@ public class CharacterMovement : MonoBehaviour
 
     private float xRotation = 0f;
     private float targetXRotation = 0f;
-
-    // Smooth turn system
-    private float turnSmoothVelocity;
-    private float currentTurnValue;
-
     private float cameraRotVelocity;
 
+    private float targetYRotation;
+    private float currentYRotation;
+
     private bool isGrounded;
+
+    private float turnInput;
 
     void Start()
     {
@@ -57,8 +67,11 @@ public class CharacterMovement : MonoBehaviour
 
         animator = visual.GetComponent<Animator>();
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        targetYRotation = transform.eulerAngles.y;
+        currentYRotation = targetYRotation;
     }
 
     void Update()
@@ -67,15 +80,15 @@ public class CharacterMovement : MonoBehaviour
         HandleJump();
         HandleDashInput();
         HandleDashTimers();
-
         HandleAnimations();
     }
 
     void FixedUpdate()
     {
         HandleMovement();
-        HandleRotation();
+        HandleVisualRotation();
         HandleDashMovement();
+        HandleCameraFollowLag();
     }
 
     // ---------------- MOVEMENT ----------------
@@ -89,7 +102,7 @@ public class CharacterMovement : MonoBehaviour
 
         float vertical = Input.GetAxis("Vertical");
 
-        Vector3 forward = visual.forward;
+        Vector3 forward = transform.forward;
         forward.y = 0f;
         forward.Normalize();
 
@@ -111,49 +124,72 @@ public class CharacterMovement : MonoBehaviour
         rb.linearVelocity = velocity;
     }
 
-    // ---------------- ROTATION (VISUAL ONLY) ----------------
+    // ---------------- VISUAL ROTATION ----------------
 
-    void HandleRotation()
+    void HandleVisualRotation()
     {
-        float mouseX = Input.GetAxis("Mouse X");
+        Vector3 currentForward = visual.forward;
+        Vector3 targetForward = transform.forward;
 
-        float rawTurn = mouseX;
+        currentForward.y = 0f;
+        targetForward.y = 0f;
 
-        if (rawTurn < -1f)
+        currentForward.Normalize();
+        targetForward.Normalize();
+
+        if (currentForward != targetForward)
         {
-            rawTurn = -1f;
+            Vector3 newDirection = Vector3.Slerp(
+                currentForward,
+                targetForward,
+                visualTurnSmooth * Time.deltaTime
+            );
+
+            visual.rotation = Quaternion.LookRotation(newDirection);
         }
-        else if (rawTurn > 1f)
-        {
-            rawTurn = 1f;
-        }
-
-        currentTurnValue = Mathf.SmoothDamp(
-            currentTurnValue,
-            rawTurn,
-            ref turnSmoothVelocity,
-            turnSmoothTime
-        );
-
-        float rotationAmount = currentTurnValue * turnSpeed * Time.fixedDeltaTime;
-
-        visual.Rotate(0f, rotationAmount, 0f);
     }
 
-    // ---------------- CAMERA (SOFT PITCH SYSTEM) ----------------
+    // ---------------- CAMERA + HYBRID TURN ----------------
 
     void MouseLook()
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        // Horizontal player rotation
-        transform.Rotate(Vector3.up * mouseX);
+        Vector2 mousePos = Input.mousePosition;
 
-        // Vertical camera input
-        targetXRotation -= mouseY;
+        float centerX = Screen.width * 0.5f;
+        float centerY = Screen.height * 0.5f;
 
-        // SOFT LIMIT SYSTEM (elastic resistance)
+        float offsetX = (mousePos.x - centerX) / centerX;
+        float offsetY = (mousePos.y - centerY) / centerY;
+
+        float edgeX = Mathf.Sign(offsetX) * Mathf.Pow(Mathf.Abs(offsetX), edgeExponent);
+        float edgeY = Mathf.Sign(offsetY) * Mathf.Pow(Mathf.Abs(offsetY), edgeExponent);
+
+        float finalTurn = mouseX + (edgeX * edgeTurnStrength * Time.deltaTime);
+        float finalLookY = mouseY + (edgeY * edgeTurnStrength * Time.deltaTime);
+
+        turnInput = finalTurn;
+
+        // store target rotation instead of applying directly
+        targetYRotation += finalTurn;
+
+        targetXRotation -= finalLookY;
+
+        // --- RECENTER ---
+        if (Mathf.Abs(offsetX) < recenterDeadZone)
+        {
+            turnInput = Mathf.Lerp(turnInput, 0f, Time.deltaTime * recenterSpeed);
+        }
+
+        if (Mathf.Abs(offsetY) < recenterDeadZone)
+        {
+            float centerTarget = Mathf.Clamp(targetXRotation, maxLookDown, maxLookUp);
+            targetXRotation = Mathf.Lerp(targetXRotation, centerTarget, Time.deltaTime * recenterSpeed);
+        }
+
+        // --- SOFT LIMITS ---
         if (targetXRotation > maxLookUp)
         {
             float excess = targetXRotation - maxLookUp;
@@ -165,7 +201,6 @@ public class CharacterMovement : MonoBehaviour
             targetXRotation += excess * Time.deltaTime * cameraSoftness;
         }
 
-        // Smooth camera motion
         xRotation = Mathf.SmoothDamp(
             xRotation,
             targetXRotation,
@@ -174,6 +209,19 @@ public class CharacterMovement : MonoBehaviour
         );
 
         cameraHolder.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+    }
+
+    // ---------------- CAMERA FOLLOW LAG ----------------
+
+    void HandleCameraFollowLag()
+    {
+        currentYRotation = Mathf.Lerp(
+            currentYRotation,
+            targetYRotation,
+            Time.fixedDeltaTime * cameraFollowSmooth
+        );
+
+        transform.rotation = Quaternion.Euler(0f, currentYRotation, 0f);
     }
 
     // ---------------- JUMP ----------------
@@ -219,7 +267,7 @@ public class CharacterMovement : MonoBehaviour
             return;
         }
 
-        Vector3 forward = visual.forward;
+        Vector3 forward = transform.forward;
         forward.y = 0f;
         forward.Normalize();
 
@@ -281,8 +329,14 @@ public class CharacterMovement : MonoBehaviour
             }
         }
 
+        float smoothedTurn = Mathf.Lerp(
+            animator.GetFloat("Turn"),
+            turnInput,
+            Time.deltaTime * 10f
+        );
+
         animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
-        animator.SetFloat("Turn", currentTurnValue, 0.1f, Time.deltaTime);
+        animator.SetFloat("Turn", smoothedTurn, 0.1f, Time.deltaTime);
         animator.SetBool("Grounded", isGrounded);
     }
 
