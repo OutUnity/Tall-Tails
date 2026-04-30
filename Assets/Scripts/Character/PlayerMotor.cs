@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerMotor : MonoBehaviour
 {
@@ -13,25 +13,20 @@ public class PlayerMotor : MonoBehaviour
     [SerializeField] private float dashCooldown = 1.2f;
 
     private Rigidbody rb;
-    public Vector3 CameraForward { get; set; }
 
     private bool isDashing;
     private bool canDash = true;
-    private float dashTimer;
-    private float cooldownTimer;
+    private float dashTimeLeft;
+    private float dashCooldownTimer;
 
-    // =============================
-    // INPUT VALUES (SET BY CONTROLLER)
-    // =============================
-    public float VerticalInput { get; set; }
+    public Transform cameraTransform;
 
-    // =============================
-    // STATE OUTPUT
-    // =============================
-    public bool IsDashing
-    {
-        get { return isDashing; }
-    }
+    public float VerticalInput { get; private set; }
+    public float HorizontalInput { get; private set; }
+
+    public bool IsDashing => isDashing;
+
+    private bool isGrounded;
 
     void Start()
     {
@@ -39,106 +34,139 @@ public class PlayerMotor : MonoBehaviour
         rb.freezeRotation = true;
     }
 
+    void Update()
+    {
+        VerticalInput = Input.GetAxis("Vertical");
+        HorizontalInput = Input.GetAxis("Horizontal");
+
+        HandleDashTimers();
+    }
+
     // =========================================================
-    // MOVEMENT (CALLED FROM CONTROLLER)
+    // MOVEMENT (CLEAN CAMERA-RELATIVE)
     // =========================================================
     public void HandleMovement(PlayerState state)
     {
-        if (state != PlayerState.Grounded)
-        {
+        if (state != PlayerState.Grounded || isDashing)
             return;
-        }
 
-        if (isDashing)
-        {
-            return;
-        }
+        // CAMERA DIRECTIONS (ONLY SOURCE OF MOVEMENT DIRECTION)
+        Vector3 camForward = cameraTransform.forward;
+        Vector3 camRight = cameraTransform.right;
 
-        Vector3 forward = CameraForward;
-        forward.y = 0f;
-        forward.Normalize();
+        camForward.y = 0f;
+        camRight.y = 0f;
+
+        camForward.Normalize();
+        camRight.Normalize();
+
+        Vector3 moveDirection =
+            camForward * VerticalInput +
+            camRight * HorizontalInput;
+
+        moveDirection.Normalize();
 
         float speed = moveSpeed;
 
-        if (VerticalInput > 0f)
+        if (VerticalInput > 0f && Input.GetKey(KeyCode.LeftShift))
         {
-            if (Input.GetKey(KeyCode.LeftShift))
-            {
-                speed *= runMultiplier;
-            }
+            speed *= runMultiplier;
         }
 
-        Vector3 velocity = forward * VerticalInput * speed;
+        Vector3 velocity = moveDirection * speed;
         velocity.y = rb.linearVelocity.y;
 
         rb.linearVelocity = velocity;
     }
 
     // =========================================================
-    // JUMP (CALLED FROM CONTROLLER)
+    // JUMP
     // =========================================================
     public void Jump()
     {
+        if (!isGrounded)
+            return;
+
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+
+        isGrounded = false;
     }
 
     // =========================================================
-    // DASH START (CALLED FROM CONTROLLER)
+    // DASH
     // =========================================================
     public void StartDash()
     {
         if (!canDash)
-        {
             return;
-        }
+
+        // 🚫 BLOCK DASH IF NO INPUT
+        if (Mathf.Abs(VerticalInput) < 0.1f && Mathf.Abs(HorizontalInput) < 0.1f)
+            return;
 
         isDashing = true;
         canDash = false;
-        dashTimer = dashDuration;
+        dashTimeLeft = dashDuration;
     }
 
-    // =========================================================
-    // DASH UPDATE (CALLED FROM CONTROLLER)
-    // =========================================================
     public void HandleDash(PlayerState state)
     {
         if (state != PlayerState.Dashing)
-        {
-            HandleDashCooldown();
             return;
-        }
 
-        dashTimer -= Time.deltaTime;
+        dashTimeLeft -= Time.deltaTime;
 
-        Vector3 forward = CameraForward;
-        forward.y = 0f;
-        forward.Normalize();
+        // USE INPUT DIRECTION (NOT JUST CAMERA FORWARD)
+        Vector3 camForward = cameraTransform.forward;
+        Vector3 camRight = cameraTransform.right;
 
-        Vector3 dashVelocity = forward * dashForce;
-        dashVelocity.y = rb.linearVelocity.y;
+        camForward.y = 0f;
+        camRight.y = 0f;
 
-        rb.linearVelocity = dashVelocity;
+        camForward.Normalize();
+        camRight.Normalize();
 
-        if (dashTimer <= 0f)
+        Vector3 dashDir =
+            camForward * VerticalInput +
+            camRight * HorizontalInput;
+
+        dashDir.Normalize();
+
+        rb.linearVelocity = dashDir * dashForce;
+
+        if (dashTimeLeft <= 0f)
         {
             isDashing = false;
-            cooldownTimer = dashCooldown;
+            dashCooldownTimer = dashCooldown;
+
+            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
         }
     }
 
-    // =========================================================
-    // DASH COOLDOWN
-    // =========================================================
-    private void HandleDashCooldown()
+    void HandleDashTimers()
     {
         if (!canDash)
         {
-            cooldownTimer -= Time.deltaTime;
+            dashCooldownTimer -= Time.deltaTime;
 
-            if (cooldownTimer <= 0f)
+            if (dashCooldownTimer <= 0f)
             {
                 canDash = true;
             }
         }
+    }
+
+    // =========================================================
+    // GROUND CHECK
+    // =========================================================
+    void OnCollisionStay(Collision collision)
+    {
+        isGrounded = true;
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        isGrounded = false;
     }
 }

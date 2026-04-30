@@ -8,12 +8,7 @@ public class PlayerRegionDetector : MonoBehaviour
     void Update()
     {
 
-        if (RegionMapManager.Instance == null)
-        {
-            Debug.LogError("RegionMapManager is NULL!");
-            return;
-        }
-        
+      
 
             int region = RegionMapManager.Instance.GetRegionFromPosition(transform.position);
 
