@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class GraphicsSettingsUI : MonoBehaviour
 {
@@ -11,23 +12,26 @@ public class GraphicsSettingsUI : MonoBehaviour
     [SerializeField] private Slider shadowSlider;
     [SerializeField] private Slider brightnessSlider;
     [SerializeField] private TMP_Dropdown colorblindDropdown;
-    //[SerializeField] private Slider colorblindAmountSlider;
+    [SerializeField] private TextMeshProUGUI shadowText;
+    [SerializeField] private TextMeshProUGUI brightnessText;
+    [SerializeField] private TextMeshProUGUI colorblindText;
 
-    private Resolution[] resolutions;
+    [SerializeField] private Slider colorblindSlider;
+
+    private Resolution[] allResolutions;
+    private List<Resolution> uniqueResolutions = new List<Resolution>();
 
     // =========================================================
-    // INIT (FIXED TIMING ISSUE)
+    // INIT
     // =========================================================
     void OnEnable()
     {
-        // prevent duplicate listeners
         colorblindDropdown.onValueChanged.RemoveAllListeners();
-        //colorblindAmountSlider.onValueChanged.RemoveAllListeners();
-
         colorblindDropdown.onValueChanged.AddListener(OnColorblindChanged);
-        //colorblindAmountSlider.onValueChanged.AddListener(OnColorblindAmountChanged);
+        shadowSlider.onValueChanged.AddListener(UpdateShadowText);
+        brightnessSlider.onValueChanged.AddListener(UpdateBrightnessText);
+        colorblindSlider.onValueChanged.AddListener(UpdateColorblindText);
 
-        // delay ensures UI is fully ready (IMPORTANT FIX)
         Invoke(nameof(InitUI), 0.01f);
     }
 
@@ -43,42 +47,68 @@ public class GraphicsSettingsUI : MonoBehaviour
     void OnColorblindChanged(int index)
     {
         Settings.ColorblindMode = index;
+
+    }
+    void UpdateShadowText(float value)
+    {
+        shadowText.text = Mathf.RoundToInt(value).ToString();
     }
 
-    void OnColorblindAmountChanged(float value)
+    void UpdateBrightnessText(float value)
     {
-        Settings.ColorblindAmount = value;
+        brightnessText.text = Mathf.RoundToInt(value).ToString();
+    }
+
+    void UpdateColorblindText(float value)
+    {
+        colorblindText.text = Mathf.RoundToInt(value).ToString();
     }
 
     // =========================================================
-    // RESOLUTION SETUP
+    // RESOLUTION SETUP (FIXED)
     // =========================================================
     void SetupResolutions()
     {
-        resolutions = Screen.resolutions;
+        allResolutions = Screen.resolutions;
+
         resolutionDropdown.ClearOptions();
+        uniqueResolutions.Clear();
 
-        var options = new System.Collections.Generic.List<string>();
+        List<string> options = new List<string>();
+        HashSet<string> seen = new HashSet<string>();
 
-        for (int i = 0; i < resolutions.Length; i++)
+        for (int i = 0; i < allResolutions.Length; i++)
         {
-            options.Add(resolutions[i].width + "x" + resolutions[i].height);
+            Resolution res = allResolutions[i];
+            string option = res.width + "x" + res.height;
+
+            if (!seen.Contains(option))
+            {
+                seen.Add(option);
+                uniqueResolutions.Add(res);
+                options.Add(option);
+            }
         }
 
         resolutionDropdown.AddOptions(options);
 
-        resolutionDropdown.value = Settings.ResolutionIndex;
+        // Clamp saved index (prevents crash)
+        int savedIndex = Mathf.Clamp(Settings.ResolutionIndex, 0, uniqueResolutions.Count - 1);
+        resolutionDropdown.value = savedIndex;
         resolutionDropdown.RefreshShownValue();
     }
 
     // =========================================================
-    // APPLY SETTINGS
+    // APPLY SETTINGS (FIXED)
     // =========================================================
     public void Apply()
     {
-        // Resolution
         int index = resolutionDropdown.value;
-        Resolution res = resolutions[index];
+
+        if (index < 0 || index >= uniqueResolutions.Count)
+            return;
+
+        Resolution res = uniqueResolutions[index];
 
         Screen.SetResolution(res.width, res.height, fullscreenToggle.isOn);
 
@@ -106,20 +136,22 @@ public class GraphicsSettingsUI : MonoBehaviour
 
         // Colorblind
         Settings.ColorblindMode = colorblindDropdown.value;
-       // Settings.ColorblindAmount = colorblindAmountSlider.value;
     }
 
     // =========================================================
-    // REFRESH UI FROM SETTINGS
+    // REFRESH UI
     // =========================================================
     public void RefreshUI()
     {
+        UpdateShadowText(shadowSlider.value);
+        UpdateBrightnessText(brightnessSlider.value);
+        UpdateColorblindText(colorblindSlider.value);
         fullscreenToggle.isOn = Settings.Fullscreen;
 
-        resolutionDropdown.value = Settings.ResolutionIndex;
+        int index = Mathf.Clamp(Settings.ResolutionIndex, 0, resolutionDropdown.options.Count - 1);
+        resolutionDropdown.value = index;
         resolutionDropdown.RefreshShownValue();
 
-        // Quality toggles
         for (int i = 0; i < qualityToggles.Length; i++)
         {
             qualityToggles[i].isOn = (i == Settings.QualityLevel);
@@ -129,6 +161,5 @@ public class GraphicsSettingsUI : MonoBehaviour
         brightnessSlider.value = Settings.Brightness;
 
         colorblindDropdown.value = Settings.ColorblindMode;
-        //colorblindAmountSlider.value = Settings.ColorblindAmount;
     }
 }
