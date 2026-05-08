@@ -1,91 +1,120 @@
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Audio;
 using TMPro;
+using UnityEngine;
+using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class AudioSettingsUI : MonoBehaviour
 {
+    [Header("Mixer")]
+    [SerializeField] private AudioMixer audioMixer;
+
     [Header("Sliders")]
     [SerializeField] private Slider masterSlider;
     [SerializeField] private Slider musicSlider;
     [SerializeField] private Slider sfxSlider;
 
-    /*[Header("Text")]
-    [SerializeField] private TMP_Text masterText;
-    [SerializeField] private TMP_Text musicText;
-    [SerializeField] private TMP_Text sfxText;
-    */
-    [Header("Mixer")]
-    [SerializeField] private AudioMixer mixer;
+    [Header("Text")]
+    [SerializeField] private TextMeshProUGUI masterText;
+    [SerializeField] private TextMeshProUGUI musicText;
+    [SerializeField] private TextMeshProUGUI sfxText;
 
-    [Header("Accessibility")]
-    [SerializeField] private Toggle autoAdvanceToggle;
-    [SerializeField] private Toggle[] textSpeedToggles; // 0=slow,1=med,2=fast
-    [SerializeField] private Toggle hintsToggle;
-
-    void Start()
+    void OnEnable()
     {
         RefreshUI();
+
+        masterSlider.onValueChanged.AddListener(UpdateMaster);
+        musicSlider.onValueChanged.AddListener(UpdateMusic);
+        sfxSlider.onValueChanged.AddListener(UpdateSFX);
     }
 
-    void Update()
-    {
-        //UpdateText();
-    }
+    // =========================================================
+    // REFRESH
+    // =========================================================
 
-    // ---------------------------
-    // APPLY
-    // ---------------------------
-    public void Apply()
-    {
-        Settings.MasterVolume = masterSlider.value;
-        Settings.MusicVolume = musicSlider.value;
-        Settings.SFXVolume = sfxSlider.value;
-
-        mixer.SetFloat("Master", Mathf.Log10(masterSlider.value) * 20);
-        mixer.SetFloat("Music", Mathf.Log10(musicSlider.value) * 20);
-        mixer.SetFloat("SFX", Mathf.Log10(sfxSlider.value) * 20);
-
-        Settings.AutoAdvance = autoAdvanceToggle.isOn;
-        Settings.HintsEnabled = hintsToggle.isOn;
-
-        for (int i = 0; i < textSpeedToggles.Length; i++)
-        {
-            if (textSpeedToggles[i].isOn)
-            {
-                Settings.TextSpeed = i;
-                break;
-            }
-        }
-    }
-
-    // ---------------------------
-    // UI REFRESH
-    // ---------------------------
     public void RefreshUI()
     {
-        masterSlider.value = Settings.MasterVolume;
-        musicSlider.value = Settings.MusicVolume;
-        sfxSlider.value = Settings.SFXVolume;
+        masterSlider.SetValueWithoutNotify(Settings.MasterVolume);
+        musicSlider.SetValueWithoutNotify(Settings.MusicVolume);
+        sfxSlider.SetValueWithoutNotify(Settings.SFXVolume);
 
-        autoAdvanceToggle.isOn = Settings.AutoAdvance;
-        hintsToggle.isOn = Settings.HintsEnabled;
-
-        for (int i = 0; i < textSpeedToggles.Length; i++)
-        {
-            textSpeedToggles[i].isOn = (i == Settings.TextSpeed);
-        }
-
-        //UpdateText();
+        UpdateMasterText(Settings.MasterVolume);
+        UpdateMusicText(Settings.MusicVolume);
+        UpdateSFXText(Settings.SFXVolume);
     }
 
-    // ---------------------------
-    // LIVE TEXT UPDATE
-    // ---------------------------
-    /*void UpdateText()
+    // =========================================================
+    // MASTER
+    // =========================================================
+
+    void UpdateMaster(float value)
     {
-        masterText.text = Mathf.RoundToInt(masterSlider.value * 100) + "%";
-        musicText.text = Mathf.RoundToInt(musicSlider.value * 100) + "%";
-        sfxText.text = Mathf.RoundToInt(sfxSlider.value * 100) + "%";
-    }*/
+        Settings.MasterVolume = value;
+
+        audioMixer.SetFloat(
+            "MasterVolume",
+            Mathf.Log10(Mathf.Clamp(value, 0.0001f, 1f)) * 20f
+        );
+
+        UpdateMasterText(value);
+    }
+
+    // =========================================================
+    // MUSIC
+    // =========================================================
+
+    void UpdateMusic(float value)
+    {
+        Settings.MusicVolume = value;
+
+        audioMixer.SetFloat(
+            "MusicVolume",
+            Mathf.Log10(Mathf.Clamp(value, 0.0001f, 1f)) * 20f
+        );
+
+        UpdateMusicText(value);
+    }
+
+    // =========================================================
+    // SFX
+    // =========================================================
+
+    void UpdateSFX(float value)
+    {
+        Settings.SFXVolume = value;
+
+        audioMixer.SetFloat(
+            "SFXVolume",
+            Mathf.Log10(Mathf.Clamp(value, 0.0001f, 1f)) * 20f
+        );
+
+        UpdateSFXText(value);
+    }
+
+    // =========================================================
+    // TEXT
+    // =========================================================
+
+    void UpdateMasterText(float value)
+    {
+        masterText.text = Mathf.RoundToInt(value * 100f) + "%";
+    }
+
+    void UpdateMusicText(float value)
+    {
+        musicText.text = Mathf.RoundToInt(value * 100f) + "%";
+    }
+
+    void UpdateSFXText(float value)
+    {
+        sfxText.text = Mathf.RoundToInt(value * 100f) + "%";
+    }
+
+    // =========================================================
+    // APPLY
+    // =========================================================
+
+    public void Apply()
+    {
+        Settings.Save();
+    }
 }

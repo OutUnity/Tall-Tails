@@ -139,4 +139,9 @@ public static class Settings
             Screen.resolutions.Length - 1
         );
     }
+    public static void ResetSettings()
+    {
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+    }
 }

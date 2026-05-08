@@ -55,7 +55,7 @@ public class SettingsMenuController : MonoBehaviour
         gameObject.SetActive(false);
 
         Time.timeScale = 1f; // resume game if paused
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 }
