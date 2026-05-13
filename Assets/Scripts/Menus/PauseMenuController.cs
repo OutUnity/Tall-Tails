@@ -1,65 +1,136 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class PauseMenuController : MonoBehaviour
 {
-    public GameObject pauseMenuPanel;        // assign the panel in inspector
-    public MenuManager menuManager;
-    public MonoBehaviour playerMovement;     // your CharacterMovement script
-    public GameObject hudPanel;
+    [Header("Root")]
+    [SerializeField] private GameObject pauseCanvas;
 
+    [Header("Menus")]
+    [SerializeField] private GameObject pauseMenu;
+    [SerializeField] private GameObject settingsMenu;
+
+    [Header("Settings UI References")]
+    [SerializeField] private GraphicsSettingsUI graphicsUI;
+    [SerializeField] private AudioSettingsUI audioUI;
+
+    [Header("Sub Menus")]
+    [SerializeField] private GameObject graphicsMenu;
+    [SerializeField] private GameObject volumeMenu;
+
+
+    [Header("State")]
     private bool isPaused = false;
+
+
+    void Start()
+    {
+        // IMPORTANT: ensure it starts OFF
+        pauseCanvas.SetActive(false);
+    }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (menuManager.currentState == MenuManager.MenuState.Closed)
-            {
-                if (!isPaused)
-                    OpenPauseMenu();
-                else
-                    ClosePauseMenu();
-            }
+            if (!isPaused)
+                OpenPause();
+            else
+                ClosePause();
         }
     }
 
-    public void OpenPauseMenu()
+    // -------------------------
+    // OPEN PAUSE
+    // -------------------------
+    public void OpenPause()
     {
-        pauseMenuPanel.SetActive(true);
+        isPaused = true;
+
+        pauseCanvas.SetActive(true);
+
+        pauseMenu.SetActive(true);
+        settingsMenu.SetActive(false);
+
         Time.timeScale = 0f;
-
-        if (playerMovement != null)
-            playerMovement.enabled = false;
-
-        if (hudPanel != null)
-            hudPanel.SetActive(false); // hide HUD
-
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-
-        isPaused = true;
     }
 
-    public void ClosePauseMenu()
+    // -------------------------
+    // CLOSE PAUSE
+    // -------------------------
+    public void ClosePause()
     {
-        pauseMenuPanel.SetActive(false);
+        isPaused = false;
+
+        pauseCanvas.SetActive(false);
+
         Time.timeScale = 1f;
-
-        if (playerMovement != null)
-            playerMovement.enabled = true;
-        if (hudPanel != null)
-            hudPanel.SetActive(true); // restore HUD
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
-        isPaused = false;
     }
-    public void ReturnToMainMenu()
+
+    // -------------------------
+    // OPEN SETTINGS
+    // -------------------------
+    public void OpenSettings()
     {
-        Time.timeScale = 1f; // ensure time is running
-        // Load your main menu scene here, e.g.:
-        SceneManager.LoadScene("MainMenu");
+        pauseMenu.SetActive(false);
+        settingsMenu.SetActive(true);
+
+        graphicsMenu.SetActive(true);
+        volumeMenu.SetActive(false);
+    }
+
+    // -------------------------
+    // GRAPHICS -> VOLUME
+    // -------------------------
+    public void OpenVolume()
+    {
+        graphicsMenu.SetActive(false);
+        volumeMenu.SetActive(true);
+    }
+
+    // -------------------------
+    // VOLUME -> GRAPHICS
+    // -------------------------
+    public void BackToGraphics()
+    {
+        volumeMenu.SetActive(false);
+        graphicsMenu.SetActive(true);
+    }
+
+    // -------------------------
+    // BACK TO PAUSE MENU
+    // -------------------------
+    public void BackToPauseMenu()
+    {
+
+        // Disable entire settings system cleanly
+        settingsMenu.SetActive(false);
+
+        graphicsMenu.SetActive(false);
+        volumeMenu.SetActive(false);
+
+        // Return to pause menu
+        pauseMenu.SetActive(true);
+    }
+    public void ApplyGraphicsAndReturn()
+    {
+        graphicsUI.Apply();
+        Settings.Save();
+
+        BackToPauseMenu();
+    }
+    public void ApplyAudioAndReturn()
+    {
+        audioUI.Apply();
+        Settings.Save();
+
+        BackToPauseMenu();
+    }
+    public void SaveGame()
+    {
+        SaveSystem.SaveGame();
     }
 }

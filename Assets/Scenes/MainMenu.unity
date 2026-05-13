@@ -5286,6 +5286,8 @@ MonoBehaviour:
   audioMenu: {fileID: 877168190}
   graphicsUI: {fileID: 93776125}
   audioUI: {fileID: 877168191}
+  openedFromPauseMenu: 0
+  pauseMenu: {fileID: 0}
 --- !u!1 &622973245
 GameObject:
   m_ObjectHideFlags: 0

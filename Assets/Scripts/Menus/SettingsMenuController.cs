@@ -10,6 +10,8 @@ public class SettingsMenuController : MonoBehaviour
     [SerializeField] private GraphicsSettingsUI graphicsUI;
     [SerializeField] private AudioSettingsUI audioUI;
 
+    [SerializeField] private bool openedFromPauseMenu;
+    [SerializeField] private GameObject pauseMenu;
     // ---------------------------
     // NAVIGATION
     // ---------------------------
@@ -44,7 +46,9 @@ public class SettingsMenuController : MonoBehaviour
         Settings.Load();
 
         graphicsUI.RefreshUI();
+       
         audioUI.RefreshUI();
+        OpenGraphics();
     }
 
     // ---------------------------
@@ -52,9 +56,14 @@ public class SettingsMenuController : MonoBehaviour
     // ---------------------------
     public void CloseMenu()
     {
+        // Hide settings pages
+        graphicsMenu.SetActive(false);
+        audioMenu.SetActive(false);
+
+        // Hide settings menu
         gameObject.SetActive(false);
 
-        Time.timeScale = 1f; // resume game if paused
+        // Only restore cursor for MAIN MENU context
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
