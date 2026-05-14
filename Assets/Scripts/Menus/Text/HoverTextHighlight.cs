@@ -10,7 +10,9 @@ public class HoverTextHighlight : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     [Header("Effects (Per Element Control)")]
     [SerializeField] private bool useGlow = false;
-    [SerializeField] private bool useScale = true;
+    [SerializeField] private bool useScale = false;
+    [SerializeField] private bool useBold = false;
+    [SerializeField] private bool useUnderline = false;
 
     private Vector3 originalScale;
     private Material materialInstance;
@@ -31,6 +33,9 @@ public class HoverTextHighlight : MonoBehaviour, IPointerEnterHandler, IPointerE
         text.color = style.defaultColor;
 
         RemoveGlow();
+
+        // Ensure no hover styling exists at start
+        text.fontStyle = FontStyles.Normal;
     }
 
     // --------------------------------------------------
@@ -51,11 +56,14 @@ public class HoverTextHighlight : MonoBehaviour, IPointerEnterHandler, IPointerE
                 originalScale * style.hoverScale;
         }
 
-        // Glow
+        // Hover glow
         if (useGlow)
         {
             ApplyGlow();
         }
+
+        // Hover text styling
+        ApplyTextStyle();
     }
 
     // --------------------------------------------------
@@ -95,22 +103,59 @@ public class HoverTextHighlight : MonoBehaviour, IPointerEnterHandler, IPointerE
             0f
         );
     }
+
+    // --------------------------------------------------
+    // DISABLE
+    // --------------------------------------------------
     void OnDisable()
     {
         ResetVisuals();
     }
+
+    // --------------------------------------------------
+    // RESET VISUALS
+    // --------------------------------------------------
     void ResetVisuals()
     {
         if (text == null || style == null)
             return;
 
+        // Reset color
         text.color = style.defaultColor;
 
+        // Reset scale
         if (useScale)
         {
             transform.localScale = originalScale;
         }
 
+        // Remove glow
         RemoveGlow();
+
+        // Remove temporary hover styling
+        text.fontStyle = FontStyles.Normal;
+    }
+
+    // --------------------------------------------------
+    // TEXT STYLE
+    // --------------------------------------------------
+    void ApplyTextStyle()
+    {
+        if (text == null)
+            return;
+
+        FontStyles styles = FontStyles.Normal;
+
+        if (useBold)
+        {
+            styles |= FontStyles.Bold;
+        }
+
+        if (useUnderline)
+        {
+            styles |= FontStyles.Underline;
+        }
+
+        text.fontStyle = styles;
     }
 }

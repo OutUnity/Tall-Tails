@@ -929,6 +929,8 @@ MonoBehaviour:
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
   useGlow: 1
   useScale: 1
+  useBold: 1
+  useUnderline: 1
 --- !u!1 &89949352
 GameObject:
   m_ObjectHideFlags: 0
@@ -1682,6 +1684,8 @@ MonoBehaviour:
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
   useGlow: 1
   useScale: 1
+  useBold: 1
+  useUnderline: 1
 --- !u!1 &199464036
 GameObject:
   m_ObjectHideFlags: 0
@@ -1944,8 +1948,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38
-  m_fontSizeBase: 38
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4331,7 +4335,9 @@ MonoBehaviour:
   label: {fileID: 1653294383}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
   useGlow: 1
-  useScale: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &440194631
 GameObject:
   m_ObjectHideFlags: 0
@@ -6215,8 +6221,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 10
@@ -6479,8 +6485,10 @@ MonoBehaviour:
   toggle: {fileID: 674819740}
   label: {fileID: 1422181398}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
-  useGlow: 0
-  useScale: 1
+  useGlow: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &675959269
 GameObject:
   m_ObjectHideFlags: 0
@@ -6977,8 +6985,10 @@ MonoBehaviour:
   toggle: {fileID: 713719428}
   label: {fileID: 645423951}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
-  useGlow: 0
-  useScale: 1
+  useGlow: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &715101144
 GameObject:
   m_ObjectHideFlags: 0
@@ -7332,8 +7342,10 @@ MonoBehaviour:
   toggle: {fileID: 741002263}
   label: {fileID: 1103588740}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
-  useGlow: 0
-  useScale: 1
+  useGlow: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &757617898
 GameObject:
   m_ObjectHideFlags: 0
@@ -7435,8 +7447,10 @@ MonoBehaviour:
   toggle: {fileID: 757617900}
   label: {fileID: 1355229062}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
-  useGlow: 0
-  useScale: 1
+  useGlow: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &767941971
 GameObject:
   m_ObjectHideFlags: 0
@@ -8042,8 +8056,10 @@ MonoBehaviour:
   toggle: {fileID: 836343002}
   label: {fileID: 1581481898}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
-  useGlow: 0
-  useScale: 1
+  useGlow: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &847869126
 GameObject:
   m_ObjectHideFlags: 0
@@ -9540,6 +9556,7 @@ Transform:
   - {fileID: 1414329433}
   - {fileID: 1928290121}
   - {fileID: 2069003340}
+  - {fileID: 1959483736}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &987944745
@@ -9885,6 +9902,8 @@ MonoBehaviour:
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
   useGlow: 1
   useScale: 1
+  useBold: 1
+  useUnderline: 1
 --- !u!1 &1079603678
 GameObject:
   m_ObjectHideFlags: 0
@@ -11244,8 +11263,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38
-  m_fontSizeBase: 38
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -12059,7 +12078,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -12103,8 +12122,10 @@ MonoBehaviour:
   toggle: {fileID: 1317908445}
   label: {fileID: 523225713}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
-  useGlow: 0
-  useScale: 1
+  useGlow: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &1324416783
 GameObject:
   m_ObjectHideFlags: 0
@@ -12206,8 +12227,10 @@ MonoBehaviour:
   toggle: {fileID: 1324416785}
   label: {fileID: 931739893}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
-  useGlow: 0
-  useScale: 1
+  useGlow: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &1340525075
 GameObject:
   m_ObjectHideFlags: 0
@@ -12752,8 +12775,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38
-  m_fontSizeBase: 38
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -13178,7 +13201,9 @@ MonoBehaviour:
   text: {fileID: 2014364115}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
   useGlow: 1
-  useScale: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &1414329432
 GameObject:
   m_ObjectHideFlags: 0
@@ -13304,7 +13329,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 25, y: -5}
-  m_SizeDelta: {x: 200, y: 28}
+  m_SizeDelta: {x: 200, y: 25}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1422181398
 MonoBehaviour:
@@ -13353,8 +13378,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 10
@@ -13856,7 +13881,9 @@ MonoBehaviour:
   text: {fileID: 1158355386}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
   useGlow: 1
-  useScale: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &1469436426
 GameObject:
   m_ObjectHideFlags: 0
@@ -14668,7 +14695,9 @@ MonoBehaviour:
   text: {fileID: 232759603}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
   useGlow: 1
-  useScale: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &1579534475
 GameObject:
   m_ObjectHideFlags: 0
@@ -15067,8 +15096,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 10
@@ -15628,7 +15657,9 @@ MonoBehaviour:
   text: {fileID: 1388127024}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
   useGlow: 1
-  useScale: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &1623433201
 GameObject:
   m_ObjectHideFlags: 0
@@ -16418,6 +16449,8 @@ MonoBehaviour:
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
   useGlow: 1
   useScale: 1
+  useBold: 1
+  useUnderline: 1
 --- !u!1 &1690525568
 GameObject:
   m_ObjectHideFlags: 0
@@ -16865,7 +16898,9 @@ MonoBehaviour:
   text: {fileID: 2030290386}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
   useGlow: 1
-  useScale: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &1727333182
 GameObject:
   m_ObjectHideFlags: 0
@@ -18169,8 +18204,10 @@ MonoBehaviour:
   toggle: {fileID: 1853257436}
   label: {fileID: 551201641}
   style: {fileID: 11400000, guid: 74b4d223abcfb1c4e8a99ad04e774159, type: 2}
-  useGlow: 0
-  useScale: 1
+  useGlow: 1
+  useScale: 0
+  useBold: 1
+  useUnderline: 0
 --- !u!1 &1854940932
 GameObject:
   m_ObjectHideFlags: 0
@@ -18931,6 +18968,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1944208103}
   m_CullTransparentMesh: 1
+--- !u!1 &1959483735
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1959483736}
+  - component: {fileID: 1959483737}
+  m_Layer: 0
+  m_Name: PlayTimeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1959483736
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1959483735}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 978976071}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1959483737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1959483735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 056590eb4cef26d42ad6c2d2f96711a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayTimeManager
 --- !u!1 &1960819563
 GameObject:
   m_ObjectHideFlags: 0
@@ -19825,8 +19906,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38
-  m_fontSizeBase: 38
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -20072,8 +20153,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38
-  m_fontSizeBase: 38
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

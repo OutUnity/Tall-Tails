@@ -8,10 +8,8 @@ public class RegionTrigger : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        // Tell CrystalManager (you already do this probably)
         CrystalManager.Instance.SetCurrentRegion(regionID);
 
-        // 🎵 Tell MusicManager
         if (MusicManager.Instance != null)
         {
             MusicManager.Instance.SetRegion(regionID);

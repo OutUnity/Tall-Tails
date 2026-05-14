@@ -1,7 +1,8 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using TMPro;
+using static System.Net.Mime.MediaTypeNames;
 
 public class StyledToggleText : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -13,6 +14,8 @@ public class StyledToggleText : MonoBehaviour, IPointerEnterHandler, IPointerExi
     [Header("Effects (Per Element Control)")]
     [SerializeField] private bool useGlow = false;
     [SerializeField] private bool useScale = false;
+    [SerializeField] private bool useBold = false;
+    [SerializeField] private bool useUnderline = false;
 
     private Vector3 originalScale;
     private Material materialInstance;
@@ -28,7 +31,7 @@ public class StyledToggleText : MonoBehaviour, IPointerEnterHandler, IPointerExi
         // Create unique material instance
         materialInstance = new Material(label.fontMaterial);
         label.fontMaterial = materialInstance;
-
+        
         UpdateVisual();
     }
 
@@ -81,6 +84,10 @@ public class StyledToggleText : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
             RemoveGlow();
         }
+        if(useBold || useUnderline)
+        {
+            ApplyTextStyle();
+        }
     }
 
     // --------------------------------------------------
@@ -106,6 +113,9 @@ public class StyledToggleText : MonoBehaviour, IPointerEnterHandler, IPointerExi
         {
             ApplyGlow();
         }
+
+        // Hover text style
+        ApplyTextStyle();
     }
 
     // --------------------------------------------------
@@ -116,14 +126,7 @@ public class StyledToggleText : MonoBehaviour, IPointerEnterHandler, IPointerExi
         if (toggle == null || label == null || style == null)
             return;
 
-        // Reset scale
-        if (useScale)
-        {
-            transform.localScale = originalScale;
-        }
-
-        // Restore proper toggle visuals
-        UpdateVisual();
+        ResetVisuals();
     }
 
     // --------------------------------------------------
@@ -160,12 +163,36 @@ public class StyledToggleText : MonoBehaviour, IPointerEnterHandler, IPointerExi
         if (toggle == null || label == null || style == null)
             return;
 
+        // Reset scale
         if (useScale)
         {
             transform.localScale = originalScale;
         }
 
+        // Remove temporary hover text styling
+        label.fontStyle = FontStyles.Normal;
+
+        // Restore proper toggle visuals
         UpdateVisual();
+    }
+    void ApplyTextStyle()
+    {
+        if (label == null)
+            return;
+
+        FontStyles styles = FontStyles.Normal;
+
+        if (useBold)
+        {
+            styles |= FontStyles.Bold;
+        }
+
+        if (useUnderline)
+        {
+            styles |= FontStyles.Underline;
+        }
+
+        label.fontStyle = styles;
     }
 
 }

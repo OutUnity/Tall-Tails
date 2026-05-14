@@ -68,7 +68,7 @@ public class RegionUI : MonoBehaviour
         canvasGroup.alpha = end;
     }
 
-    string GetRegionName(int id)
+    public string GetRegionName(int id)
     {
         switch (id)
         {
