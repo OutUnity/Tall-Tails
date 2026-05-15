@@ -1,75 +1,125 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI;
-using System.Collections.Generic;
 
 public class LoadMenuUI : MonoBehaviour
 {
-    [Header("UI")]
+    public enum SaveMenuMode
+    {
+        Load,
+        Save
+    }
+
+    [Header("Mode")]
+    [SerializeField] private SaveMenuMode currentMode;
+
+    [Header("References")]
     [SerializeField] private Transform slotContainer;
     [SerializeField] private GameObject slotPrefab;
-    [SerializeField] private GameObject loadPanel;
+    [SerializeField] private TMP_Text titleText;
 
-    void OnEnable()
+    private void OnEnable()
     {
         Refresh();
     }
 
-    public void Open()
+    public void OpenLoadMenu()
     {
-        loadPanel.SetActive(true);
+        currentMode = SaveMenuMode.Load;
+
+        if (titleText != null)
+        {
+            titleText.text = "LOAD GAME";
+        }
+
+        gameObject.SetActive(true);
         Refresh();
     }
 
-    public void Close()
+    public void OpenSaveMenu()
     {
-        loadPanel.SetActive(false);
+        currentMode = SaveMenuMode.Save;
+
+        if (titleText != null)
+        {
+            titleText.text = "SAVE GAME";
+        }
+
+        gameObject.SetActive(true);
+        Refresh();
+    }
+
+    public void CloseMenu()
+    {
+        gameObject.SetActive(false);
     }
 
     public void Refresh()
     {
-        // Clear old UI
         foreach (Transform child in slotContainer)
+        {
             Destroy(child.gameObject);
+        }
 
-        // ---------------------------
-        // NEW SAVE BUTTON (TOP)
-        // ---------------------------
-        GameObject newSave = Instantiate(slotPrefab, slotContainer);
+        int slotCount = SaveSystem.GetSlotCount();
 
-        TMP_Text[] newSaveTexts = newSave.GetComponentsInChildren<TMP_Text>();
-        newSaveTexts[0].text = "NEW SAVE";
-        newSaveTexts[1].text = "";
-
-        newSave.GetComponent<Button>().onClick.AddListener(() =>
+        for (int i = 0; i < slotCount; i++)
         {
-            SaveSystem.SaveGame();
-            Refresh();
-        });
+            int index = i;
 
-        // ---------------------------
-        // LOAD EXISTING SLOTS
-        // ---------------------------
-        List<(int index, SaveSlot slot)> slots = SaveSystem.GetAllSlots();
-
-        foreach (var data in slots)
-        {
             GameObject obj = Instantiate(slotPrefab, slotContainer);
 
-            SaveSlot slot = data.slot;
-            int index = data.index;
+            SaveSlotUI ui = obj.GetComponent<SaveSlotUI>();
 
-            TMP_Text[] texts = obj.GetComponentsInChildren<TMP_Text>();
+            SaveSlot slot = SaveSystem.LoadSlot(index);
 
-            texts[0].text =
-                "Region: " + RegionUI.Instance.GetRegionName(slot.regionID);
+            // =====================================================
+            // LOAD MODE
+            // =====================================================
 
-            texts[1].text = slot.saveDate;
-
-            obj.GetComponent<Button>().onClick.AddListener(() =>
+            if (currentMode == SaveMenuMode.Load)
             {
-                SaveSystem.LoadGameFromSlot(index);
-            });
+                if (slot == null)
+                {
+                    ui.SetupEmpty(index, OnSaveClicked);
+                }
+                else
+                {
+                    ui.Setup(index, slot);
+                }
+            }
+
+            // =====================================================
+            // SAVE MODE
+            // =====================================================
+
+            if (currentMode == SaveMenuMode.Save)
+            {
+                if (slot == null)
+                {
+                    ui.SetupEmpty(index, OnSaveClicked);
+                }
+                else
+                {
+                    ui.Setup(index, slot);
+
+                    // overwrite behavior (no new function names added)
+                    ui.GetComponent<UnityEngine.UI.Button>()
+                        .onClick.RemoveAllListeners();
+
+                    ui.GetComponent<UnityEngine.UI.Button>()
+                        .onClick.AddListener(() =>
+                        {
+                            SaveSystem.SaveGame(index);
+                            Refresh();
+                        });
+                }
+            }
         }
+    }
+
+    private void OnSaveClicked(int index)
+    {
+        SaveSystem.SaveGame(index);
+        Refresh();
     }
 }
