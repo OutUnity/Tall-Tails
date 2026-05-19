@@ -1,48 +1,34 @@
-﻿using UnityEngine;
+﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public static class SaveSystem
 {
     private const int MAX_SLOTS = 10;
 
-    // =========================================================
-    // PENDING LOAD (scene-safe transfer)
-    // =========================================================
     public static SaveSlot PendingLoad;
+    public static string gameplaySceneName = "GameScene";
 
-    public static bool HasPendingLoad()
-    {
-        return PendingLoad != null;
-    }
-
-    public static SaveSlot ConsumePendingLoad()
-    {
-        SaveSlot slot = PendingLoad;
-        PendingLoad = null;
-        return slot;
-    }
-
-    // =========================================================
-    // SAVE GAME INTO SLOT
-    // =========================================================
+    // =====================================================
+    // SAVE GAME
+    // =====================================================
     public static void SaveGame(int slotIndex)
     {
         SaveSlot slot = BuildSaveSlot(slotIndex);
 
-        slot.screenshotPath = CaptureScreenshot(slotIndex);
+        string path = GetScreenshotPath(slotIndex);
+        slot.screenshotPath = path;
 
-        PlayerPrefs.SetString(
-            "SaveSlot_" + slotIndex,
-            JsonUtility.ToJson(slot)
-        );
+        ScreenCapture.CaptureScreenshot(path);
 
+        PlayerPrefs.SetString("SaveSlot_" + slotIndex, JsonUtility.ToJson(slot));
         PlayerPrefs.Save();
     }
 
-    // =========================================================
+    // =====================================================
     // BUILD SAVE DATA
-    // =========================================================
+    // =====================================================
     private static SaveSlot BuildSaveSlot(int slotIndex)
     {
         SaveSlot slot = new SaveSlot();
@@ -59,26 +45,23 @@ public static class SaveSystem
 
             if (RegionMapManager.Instance != null)
             {
-                slot.regionID =
-                    RegionMapManager.Instance.GetRegionFromPosition(pos);
+                slot.regionID = RegionMapManager.Instance.GetRegionFromPosition(pos);
             }
         }
 
-        slot.saveDate =
-            System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        slot.saveDate = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
         if (PlayTimeManager.Instance != null)
         {
-            slot.playTime =
-                PlayTimeManager.Instance.GetPlayTime();
+            slot.playTime = PlayTimeManager.Instance.GetPlayTime();
         }
 
         return slot;
     }
 
-    // =========================================================
-    // LOAD SINGLE SLOT DATA
-    // =========================================================
+    // =====================================================
+    // LOAD SLOT
+    // =====================================================
     public static SaveSlot LoadSlot(int index)
     {
         string json = PlayerPrefs.GetString("SaveSlot_" + index, "");
@@ -95,7 +78,6 @@ public static class SaveSystem
             return null;
         }
 
-        // treat invalid slots as empty
         if (string.IsNullOrEmpty(slot.saveDate))
         {
             return null;
@@ -104,26 +86,32 @@ public static class SaveSystem
         return slot;
     }
 
-    // =========================================================
-    // LOAD GAME FROM SLOT (MAIN ENTRY POINT)
-    // =========================================================
+    // =====================================================
+    // LOAD GAME (MAIN ENTRY)
+    // =====================================================
     public static void LoadGameFromSlot(int index)
     {
         SaveSlot slot = LoadSlot(index);
 
         if (slot == null)
         {
+            Debug.LogWarning("Tried to load empty slot: " + index);
             return;
         }
 
         PendingLoad = slot;
 
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        if (LoadingUI.Instance != null)
+        {
+            LoadingUI.Instance.Show();
+        }
+
+        SceneManager.LoadScene(gameplaySceneName);
     }
 
-    // =========================================================
-    // LOAD LATEST SAVE
-    // =========================================================
+    // =====================================================
+    // APPLY LATEST SAVE
+    // =====================================================
     public static void LoadLatestSave()
     {
         List<(int index, SaveSlot slot)> slots = GetAllSlots();
@@ -136,13 +124,12 @@ public static class SaveSystem
         LoadGameFromSlot(slots[0].index);
     }
 
-    // =========================================================
-    // GET ALL SLOTS
-    // =========================================================
+    // =====================================================
+    // GET SLOTS
+    // =====================================================
     public static List<(int index, SaveSlot slot)> GetAllSlots()
     {
-        List<(int index, SaveSlot slot)> list =
-            new List<(int index, SaveSlot slot)>();
+        List<(int index, SaveSlot slot)> list = new List<(int index, SaveSlot slot)>();
 
         for (int i = 0; i < MAX_SLOTS; i++)
         {
@@ -155,27 +142,75 @@ public static class SaveSystem
         }
 
         list.Sort((a, b) =>
-            string.Compare(b.slot.saveDate, a.slot.saveDate)
-        );
+        {
+            return string.Compare(b.slot.saveDate, a.slot.saveDate);
+        });
 
         return list;
     }
 
-    // =========================================================
-    // HELPERS
-    // =========================================================
-    private static string CaptureScreenshot(int slotIndex)
-    {
-        string path =
-            Application.persistentDataPath +
-            "/save_" + slotIndex + ".png";
-
-        ScreenCapture.CaptureScreenshot(path);
-
-        return path;
-    }
+    // =====================================================
+    // SLOT COUNT
+    // =====================================================
     public static int GetSlotCount()
     {
         return MAX_SLOTS;
     }
+
+    // =====================================================
+    // DELETE
+    // =====================================================
+    public static void DeleteSlot(int index)
+    {
+        PlayerPrefs.DeleteKey("SaveSlot_" + index);
+        PlayerPrefs.Save();
+    }
+
+    public static void DeleteAllSaves()
+    {
+        for (int i = 0; i < MAX_SLOTS; i++)
+        {
+            PlayerPrefs.DeleteKey("SaveSlot_" + i);
+        }
+
+        PlayerPrefs.Save();
+    }
+
+    // =====================================================
+    // SCREENSHOT PATH
+    // =====================================================
+    private static string GetScreenshotPath(int slotIndex)
+    {
+        return Application.persistentDataPath + "/save_" + slotIndex + ".png";
+    }
+
+    // =====================================================
+    // DEBUG CHECK
+    // =====================================================
+    public static bool HasAnySave()
+    {
+        for (int i = 0; i < MAX_SLOTS; i++)
+        {
+            SaveSlot slot = LoadSlot(i);
+
+            if (slot != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    public static bool HasPendingLoad()
+    {
+        return PendingLoad != null;
+    }
+
+    public static SaveSlot ConsumePendingLoad()
+    {
+        SaveSlot slot = PendingLoad;
+        PendingLoad = null;
+        return slot;
+    }
+
 }

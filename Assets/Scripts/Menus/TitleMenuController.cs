@@ -8,10 +8,8 @@ public class TitleMenuController : MonoBehaviour
 
     void Start()
     {
-        bool hasSave =
-            PlayerPrefs.HasKey("SavedScene");
+        bool hasSave = SaveSystem.HasAnySave();
 
-        // Only show if save exists
         continueButton.SetActive(hasSave);
         loadButton.SetActive(hasSave);
     }

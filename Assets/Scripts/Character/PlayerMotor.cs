@@ -19,14 +19,15 @@ public class PlayerMotor : MonoBehaviour
     private float dashTimeLeft;
     private float dashCooldownTimer;
 
+    private bool isGrounded;
+    private bool isLocked; // NEW (used during loading)
+
     public Transform cameraTransform;
 
     public float VerticalInput { get; private set; }
     public float HorizontalInput { get; private set; }
 
     public bool IsDashing => isDashing;
-
-    private bool isGrounded;
 
     void Start()
     {
@@ -36,6 +37,13 @@ public class PlayerMotor : MonoBehaviour
 
     void Update()
     {
+        if (isLocked)
+        {
+            VerticalInput = 0f;
+            HorizontalInput = 0f;
+            return;
+        }
+
         VerticalInput = Input.GetAxis("Vertical");
         HorizontalInput = Input.GetAxis("Horizontal");
 
@@ -43,14 +51,46 @@ public class PlayerMotor : MonoBehaviour
     }
 
     // =========================================================
-    // MOVEMENT (CLEAN CAMERA-RELATIVE)
+    // PUBLIC: CALLED AFTER LOAD
+    // =========================================================
+    public void ResetAfterLoad()
+    {
+        isDashing = false;
+        canDash = true;
+        dashTimeLeft = 0f;
+        dashCooldownTimer = 0f;
+        isLocked = false;
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+
+    public void SetLocked(bool value)
+    {
+        isLocked = value;
+
+        if (value)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
+
+    // =========================================================
+    // MOVEMENT
     // =========================================================
     public void HandleMovement(PlayerState state)
     {
-        if (state != PlayerState.Grounded || isDashing)
+        if (isLocked)
+        {
             return;
+        }
 
-        // CAMERA DIRECTIONS (ONLY SOURCE OF MOVEMENT DIRECTION)
+        if (state != PlayerState.Grounded || isDashing)
+        {
+            return;
+        }
+
         Vector3 camForward = cameraTransform.forward;
         Vector3 camRight = cameraTransform.right;
 
@@ -73,7 +113,9 @@ public class PlayerMotor : MonoBehaviour
             speed *= runMultiplier;
         }
 
-        Vector3 velocity = moveDirection * speed;
+        Vector3 velocity =
+            moveDirection * speed;
+
         velocity.y = rb.linearVelocity.y;
 
         rb.linearVelocity = velocity;
@@ -84,10 +126,20 @@ public class PlayerMotor : MonoBehaviour
     // =========================================================
     public void Jump()
     {
-        if (!isGrounded)
+        if (isLocked)
+        {
             return;
+        }
 
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        if (!isGrounded)
+        {
+            return;
+        }
+
+        Vector3 v = rb.linearVelocity;
+        v.y = 0f;
+
+        rb.linearVelocity = v;
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
 
         isGrounded = false;
@@ -98,12 +150,21 @@ public class PlayerMotor : MonoBehaviour
     // =========================================================
     public void StartDash()
     {
-        if (!canDash)
+        if (isLocked)
+        {
             return;
+        }
 
-        // 🚫 BLOCK DASH IF NO INPUT
-        if (Mathf.Abs(VerticalInput) < 0.1f && Mathf.Abs(HorizontalInput) < 0.1f)
+        if (!canDash)
+        {
             return;
+        }
+
+        if (Mathf.Abs(VerticalInput) < 0.1f &&
+            Mathf.Abs(HorizontalInput) < 0.1f)
+        {
+            return;
+        }
 
         isDashing = true;
         canDash = false;
@@ -112,12 +173,18 @@ public class PlayerMotor : MonoBehaviour
 
     public void HandleDash(PlayerState state)
     {
-        if (state != PlayerState.Dashing)
+        if (isLocked)
+        {
             return;
+        }
+
+        if (state != PlayerState.Dashing)
+        {
+            return;
+        }
 
         dashTimeLeft -= Time.deltaTime;
 
-        // USE INPUT DIRECTION (NOT JUST CAMERA FORWARD)
         Vector3 camForward = cameraTransform.forward;
         Vector3 camRight = cameraTransform.right;
 
@@ -140,20 +207,23 @@ public class PlayerMotor : MonoBehaviour
             isDashing = false;
             dashCooldownTimer = dashCooldown;
 
-            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            rb.linearVelocity =
+                new Vector3(0f, rb.linearVelocity.y, 0f);
         }
     }
 
     void HandleDashTimers()
     {
-        if (!canDash)
+        if (canDash)
         {
-            dashCooldownTimer -= Time.deltaTime;
+            return;
+        }
 
-            if (dashCooldownTimer <= 0f)
-            {
-                canDash = true;
-            }
+        dashCooldownTimer -= Time.deltaTime;
+
+        if (dashCooldownTimer <= 0f)
+        {
+            canDash = true;
         }
     }
 

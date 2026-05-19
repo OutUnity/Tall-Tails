@@ -1,30 +1,84 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerLoadHandler : MonoBehaviour
 {
-    void Start()
+    [SerializeField] private PlayerController controller;
+
+    IEnumerator Start()
     {
         if (!SaveSystem.HasPendingLoad())
         {
-            return;
+            yield break;
         }
+
+        // =====================================================
+        // FREEZE PLAYER INPUT / MOVEMENT
+        // =====================================================
+        if (controller != null)
+        {
+            controller.isLoading = true;
+        }
+
+        // Wait for scene + spawn systems
+        yield return null;
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForSeconds(0.05f);
 
         SaveSlot slot = SaveSystem.ConsumePendingLoad();
 
         if (slot == null)
         {
-            return;
+            if (controller != null)
+            {
+                controller.isLoading = false;
+            }
+
+            yield break;
         }
 
-        transform.position = new Vector3(
+        Vector3 targetPos = new Vector3(
             slot.playerX,
             slot.playerY,
             slot.playerZ
         );
 
+        // =====================================================
+        // SAFE POSITION APPLY
+        // =====================================================
+
+        CharacterController cc = GetComponent<CharacterController>();
+
+        if (cc != null)
+        {
+            cc.enabled = false;
+            transform.position = targetPos;
+            cc.enabled = true;
+        }
+        else
+        {
+            transform.position = targetPos;
+        }
+
+        // =====================================================
+        // RESET PLAYER STATE (IMPORTANT FIX)
+        // =====================================================
+
+        if (controller != null)
+        {
+            controller.state = PlayerState.Grounded;
+            controller.isLoading = false;
+        }
+
+        // =====================================================
+        // RESTORE META DATA
+        // =====================================================
+
         if (PlayTimeManager.Instance != null)
         {
             PlayTimeManager.Instance.SetPlayTime(slot.playTime);
         }
+
+        Debug.Log("Player loaded at: " + targetPos);
     }
 }

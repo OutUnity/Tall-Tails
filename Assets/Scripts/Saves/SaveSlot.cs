@@ -1,3 +1,5 @@
+using UnityEngine;
+
 [System.Serializable]
 public class SaveSlot
 {
@@ -11,4 +13,5 @@ public class SaveSlot
     public float playTime;
 
     public string screenshotPath;
+    public string sceneName;   
 }

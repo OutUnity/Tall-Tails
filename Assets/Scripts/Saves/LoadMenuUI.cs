@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class LoadMenuUI : MonoBehaviour
@@ -17,6 +18,9 @@ public class LoadMenuUI : MonoBehaviour
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] private TMP_Text titleText;
 
+    [Header("Confirmation UI")]
+    [SerializeField] private ConfirmActionUI confirmActionUI;
+
     private void OnEnable()
     {
         Refresh();
@@ -32,6 +36,7 @@ public class LoadMenuUI : MonoBehaviour
         }
 
         gameObject.SetActive(true);
+
         Refresh();
     }
 
@@ -45,6 +50,7 @@ public class LoadMenuUI : MonoBehaviour
         }
 
         gameObject.SetActive(true);
+
         Refresh();
     }
 
@@ -66,11 +72,14 @@ public class LoadMenuUI : MonoBehaviour
         {
             int index = i;
 
-            GameObject obj = Instantiate(slotPrefab, slotContainer);
+            GameObject obj =
+                Instantiate(slotPrefab, slotContainer);
 
-            SaveSlotUI ui = obj.GetComponent<SaveSlotUI>();
+            SaveSlotUI ui =
+                obj.GetComponent<SaveSlotUI>();
 
-            SaveSlot slot = SaveSystem.LoadSlot(index);
+            SaveSlot slot =
+                SaveSystem.LoadSlot(index);
 
             // =====================================================
             // LOAD MODE
@@ -78,13 +87,41 @@ public class LoadMenuUI : MonoBehaviour
 
             if (currentMode == SaveMenuMode.Load)
             {
+                // EMPTY SLOT
                 if (slot == null)
                 {
                     ui.SetupEmpty(index, OnSaveClicked);
+
+                    Button emptyButton =
+                        ui.GetComponent<Button>();
+
+                    if (emptyButton != null)
+                    {
+                        emptyButton.interactable = false;
+                    }
                 }
+
+                // SAVED SLOT
                 else
                 {
                     ui.Setup(index, slot);
+
+                    Button slotButton =
+                        ui.GetComponent<Button>();
+
+                    if (slotButton != null)
+                    {
+                        slotButton.onClick.RemoveAllListeners();
+
+                        slotButton.onClick.AddListener(() =>
+                        {
+                            confirmActionUI.Open(
+                                index,
+                                ConfirmActionUI.ConfirmMode.LoadGame,
+                                OnLoadConfirmed
+                            );
+                        });
+                    }
                 }
             }
 
@@ -94,24 +131,33 @@ public class LoadMenuUI : MonoBehaviour
 
             if (currentMode == SaveMenuMode.Save)
             {
+                // EMPTY SLOT
                 if (slot == null)
                 {
                     ui.SetupEmpty(index, OnSaveClicked);
                 }
+
+                // SAVED SLOT
                 else
                 {
                     ui.Setup(index, slot);
 
-                    // overwrite behavior (no new function names added)
-                    ui.GetComponent<UnityEngine.UI.Button>()
-                        .onClick.RemoveAllListeners();
+                    Button slotButton =
+                        ui.GetComponent<Button>();
 
-                    ui.GetComponent<UnityEngine.UI.Button>()
-                        .onClick.AddListener(() =>
+                    if (slotButton != null)
+                    {
+                        slotButton.onClick.RemoveAllListeners();
+
+                        slotButton.onClick.AddListener(() =>
                         {
-                            SaveSystem.SaveGame(index);
-                            Refresh();
+                            confirmActionUI.Open(
+                                index,
+                                ConfirmActionUI.ConfirmMode.SaveOverwrite,
+                                OnOverwriteConfirmed
+                            );
                         });
+                    }
                 }
             }
         }
@@ -120,6 +166,19 @@ public class LoadMenuUI : MonoBehaviour
     private void OnSaveClicked(int index)
     {
         SaveSystem.SaveGame(index);
+
         Refresh();
+    }
+
+    private void OnOverwriteConfirmed(int index)
+    {
+        SaveSystem.SaveGame(index);
+
+        Refresh();
+    }
+
+    private void OnLoadConfirmed(int index)
+    {
+        SaveSystem.LoadGameFromSlot(index);
     }
 }

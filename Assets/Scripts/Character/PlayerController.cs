@@ -9,35 +9,60 @@ public class PlayerController : MonoBehaviour
     public PlayerCamera playerCamera;
     public PlayerAnimator playerAnimator;
 
+    [Header("State Flags")]
+    public bool isLoading = false;
+
     private float jumpLockTimer;
     private bool isGrounded;
 
-    void Start()
+    // =========================================================
+    // INIT
+    // =========================================================
+    void OnEnable()
     {
-        motor.cameraTransform = playerCamera.GetCameraTransform();
+        SetLoadingState(false);
     }
 
+    void Start()
+    {
+        if (motor != null && playerCamera != null)
+        {
+            motor.cameraTransform = playerCamera.GetCameraTransform();
+        }
+    }
+
+    // =========================================================
+    // LOADING CONTROL
+    // =========================================================
+    public void SetLoadingState(bool loading)
+    {
+        isLoading = loading;
+
+        if (loading)
+        {
+            state = PlayerState.Grounded;
+        }
+    }
+
+    // =========================================================
+    // UPDATE
+    // =========================================================
     void Update()
     {
-        // =========================
-        // TIMERS
-        // =========================
-        if (jumpLockTimer > 0f)
-            jumpLockTimer -= Time.deltaTime;
+        if (isLoading)
+        {
+            return;
+        }
 
-        // =========================
-        // CAMERA INPUT
-        // =========================
+        if (jumpLockTimer > 0f)
+        {
+            jumpLockTimer -= Time.deltaTime;
+        }
+
         playerCamera.HandleLook();
 
-        // =========================
-        // STATE MACHINE
-        // =========================
         HandleStateTransitions();
 
-        // =========================
-        // ANIMATION INPUT
-        // =========================
         playerAnimator.UpdateAnimations(
             motor.VerticalInput,
             playerCamera.TurnInput,
@@ -46,26 +71,22 @@ public class PlayerController : MonoBehaviour
         );
     }
 
+    // =========================================================
+    // FIXED UPDATE
+    // =========================================================
     void FixedUpdate()
     {
-        // =========================
-        // ROTATION (PLAYER FOLLOWS CAMERA)
-        // =========================
-        transform.rotation = Quaternion.Euler(0f, playerCamera.CurrentYaw, 0f);
+        if (isLoading)
+        {
+            return;
+        }
 
-        // =========================
-        // MOVEMENT
-        // =========================
+        transform.rotation =
+            Quaternion.Euler(0f, playerCamera.CurrentYaw, 0f);
+
         motor.HandleMovement(state);
-
-        // =========================
-        // DASH
-        // =========================
         motor.HandleDash(state);
 
-        // =========================
-        // VISUAL ROTATION (MODEL ONLY)
-        // =========================
         playerAnimator.HandleVisualRotation(transform);
     }
 
@@ -74,42 +95,41 @@ public class PlayerController : MonoBehaviour
     // =========================================================
     void HandleStateTransitions()
     {
-        // -------- GROUNDED --------
+        if (isLoading)
+        {
+            return;
+        }
+
         if (state == PlayerState.Grounded)
         {
-            // JUMP
             if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
             {
                 jumpLockTimer = 0.2f;
                 state = PlayerState.Jumping;
 
-                playerAnimator.TriggerJump(); // animation FIRST
-                motor.Jump();                // physics SECOND
+                playerAnimator.TriggerJump();
+                motor.Jump();
             }
 
-            // DASH
             if (Input.GetKeyDown(KeyCode.LeftControl))
             {
                 motor.StartDash();
 
-                if (motor.IsDashing) // only change state if dash actually started
+                if (motor.IsDashing)
                 {
                     state = PlayerState.Dashing;
                 }
             }
         }
 
-        // -------- JUMPING --------
         if (state == PlayerState.Jumping)
         {
-            // prevent instant re-grounding (THIS WAS YOUR BUG)
             if (isGrounded && jumpLockTimer <= 0f)
             {
                 state = PlayerState.Grounded;
             }
         }
 
-        // -------- DASHING --------
         if (state == PlayerState.Dashing)
         {
             if (!motor.IsDashing)
