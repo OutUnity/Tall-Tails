@@ -13,7 +13,7 @@ public class SaveResetOnFirstRun : MonoBehaviour
         {
             ClearAllSaves();
 
-            Debug.Log("Development reset completed.");
+           // Debug.Log("Development reset completed.");
         }
     }
 

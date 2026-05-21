@@ -4,7 +4,7 @@ public class PlayerCamera : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Transform cameraPivot;
-    [SerializeField] private Transform player;   // IMPORTANT: assign Player root here
+    [SerializeField] private Transform player;
 
     [Header("Camera Settings")]
     [SerializeField] private float mouseSensitivity = 2f;
@@ -12,7 +12,7 @@ public class PlayerCamera : MonoBehaviour
     [SerializeField] private float maxLookDown = -20f;
     [SerializeField] private float smooth = 0.08f;
 
-    private float yaw;                 // ONLY THIS SCRIPT OWNS YAW
+    private float yaw;
     private float targetPitch;
     private float currentPitch;
     private float pitchVel;
@@ -25,24 +25,65 @@ public class PlayerCamera : MonoBehaviour
         return cameraPivot;
     }
 
+    void Awake()
+    {
+        // SAFETY: auto-assign pivot if missing
+        if (cameraPivot == null)
+        {
+            cameraPivot = transform;
+        }
+
+        if (player == null)
+        {
+            Debug.LogError("PlayerCamera: Player reference is missing!");
+        }
+    }
+
     void Start()
     {
-        yaw = player.eulerAngles.y;
+        if (player != null)
+        {
+            yaw = player.eulerAngles.y;
+        }
+        else
+        {
+            yaw = transform.eulerAngles.y;
+        }
+
+        targetPitch = 0f;
+        currentPitch = 0f;
     }
+
     public void HandleLook()
     {
+        if (player == null || cameraPivot == null)
+        {
+            return;
+        }
+
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+
+        // SAFETY: prevent NaN from input spikes
+        if (float.IsNaN(mouseX) || float.IsNaN(mouseY))
+        {
+            mouseX = 0f;
+            mouseY = 0f;
+        }
 
         TurnInput = mouseX;
 
         // =========================
-        // YAW (PLAYER ROTATION OWNER)
+        // YAW (PLAYER ROTATION)
         // =========================
         yaw += mouseX;
 
-        // Apply yaw directly to player
-        //player.rotation = Quaternion.Euler(0f, yaw, 0f);
+        if (float.IsNaN(yaw))
+        {
+            yaw = 0f;
+        }
+
+        player.rotation = Quaternion.Euler(0f, yaw, 0f);
 
         // =========================
         // PITCH (CAMERA ONLY)
@@ -57,6 +98,19 @@ public class PlayerCamera : MonoBehaviour
             smooth
         );
 
-        cameraPivot.localRotation = Quaternion.Euler(currentPitch, 0f, 0f);
+        // SAFETY CHECK BEFORE APPLYING ROTATION
+        if (float.IsNaN(currentPitch))
+        {
+            currentPitch = 0f;
+        }
+
+        Quaternion rot = Quaternion.Euler(currentPitch, 0f, 0f);
+
+        if (float.IsNaN(rot.x) || float.IsNaN(rot.y) || float.IsNaN(rot.z) || float.IsNaN(rot.w))
+        {
+            rot = Quaternion.identity;
+        }
+
+        cameraPivot.localRotation = rot;
     }
 }

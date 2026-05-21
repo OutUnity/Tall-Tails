@@ -23,7 +23,7 @@ public class PlayerRegionDetector : MonoBehaviour
             if (MusicManager.Instance != null)
                 MusicManager.Instance.SetRegion(region);
 
-            Debug.Log("Entered Region: " + region);
+            //Debug.Log("Entered Region: " + region);
 
             // 🎯 Show UI overlay
             RegionUI.Instance.ShowRegion(region);

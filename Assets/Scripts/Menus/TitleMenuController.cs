@@ -6,11 +6,45 @@ public class TitleMenuController : MonoBehaviour
     [SerializeField] private GameObject continueButton;
     [SerializeField] private GameObject loadButton;
 
+    [Header("References")]
+    [SerializeField] private GameLoader gameLoader;
+
     void Start()
     {
         bool hasSave = SaveSystem.HasAnySave();
 
-        continueButton.SetActive(hasSave);
-        loadButton.SetActive(hasSave);
+        if (continueButton != null)
+        {
+            continueButton.SetActive(hasSave);
+        }
+
+        if (loadButton != null)
+        {
+            loadButton.SetActive(hasSave);
+        }
+    }
+
+    // =====================================================
+    // CONTINUE GAME
+    // =====================================================
+
+    public void ContinueGame()
+    {
+        if (gameLoader != null)
+        {
+            gameLoader.ContinueGame();
+        }
+    }
+
+    // =====================================================
+    // NEW GAME
+    // =====================================================
+
+    public void NewGame()
+    {
+        if (gameLoader != null)
+        {
+            gameLoader.NewGame();
+        }
     }
 }

@@ -24,7 +24,7 @@ public class RegionUI : MonoBehaviour
 
     public void ShowRegion(int regionID)
     {
-        Debug.Log("ShowRegion called: " + regionID);
+        //Debug.Log("ShowRegion called: " + regionID);
 
         string regionName = GetRegionName(regionID);
 

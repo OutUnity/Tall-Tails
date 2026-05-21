@@ -44,13 +44,22 @@ public class ConfirmActionUI : MonoBehaviour
 
         UpdateMessage();
 
-        root.SetActive(true);
+        if (root != null)
+        {
+            root.SetActive(true);
+        }
 
-        yesButton.onClick.RemoveAllListeners();
-        noButton.onClick.RemoveAllListeners();
+        if (yesButton != null)
+        {
+            yesButton.onClick.RemoveAllListeners();
+            yesButton.onClick.AddListener(OnConfirm);
+        }
 
-        yesButton.onClick.AddListener(OnConfirm);
-        noButton.onClick.AddListener(Close);
+        if (noButton != null)
+        {
+            noButton.onClick.RemoveAllListeners();
+            noButton.onClick.AddListener(Close);
+        }
     }
 
     // =====================================================
@@ -68,15 +77,13 @@ public class ConfirmActionUI : MonoBehaviour
         {
             case ConfirmMode.SaveOverwrite:
 
-                messageText.text =
-                    "Overwrite this save?";
+                messageText.text = "Overwrite this save?";
 
                 break;
 
             case ConfirmMode.LoadGame:
 
-                messageText.text =
-                    "Load this save?";
+                messageText.text = "Load this save?";
 
                 break;
         }
@@ -102,6 +109,9 @@ public class ConfirmActionUI : MonoBehaviour
 
     public void Close()
     {
-        root.SetActive(false);
+        if (root != null)
+        {
+            root.SetActive(false);
+        }
     }
 }

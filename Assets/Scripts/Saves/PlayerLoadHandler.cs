@@ -1,67 +1,62 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 public class PlayerLoadHandler : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private PlayerController controller;
 
-    IEnumerator Start()
-    {
-        if (!SaveSystem.HasPendingLoad())
-        {
-            yield break;
-        }
+    [SerializeField] private Rigidbody rb;
 
-        // =====================================================
-        // FREEZE PLAYER INPUT / MOVEMENT
-        // =====================================================
+    private IEnumerator Start()
+    {
         if (controller != null)
         {
             controller.isLoading = true;
         }
 
-        // Wait for scene + spawn systems
         yield return null;
         yield return new WaitForEndOfFrame();
         yield return new WaitForSeconds(0.05f);
 
-        SaveSlot slot = SaveSystem.ConsumePendingLoad();
+        // =====================================================
+        // APPLY SAVE
+        // =====================================================
 
-        if (slot == null)
+        if (SaveSystem.HasPendingLoad())
         {
-            if (controller != null)
+            SaveSlot slot = SaveSystem.ConsumePendingLoad();
+
+            if (slot != null)
             {
-                controller.isLoading = false;
+                Vector3 targetPos = new Vector3(
+                    slot.playerX,
+                    slot.playerY,
+                    slot.playerZ
+                );
+
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    rb.position = targetPos;
+                }
+                else
+                {
+                    transform.position = targetPos;
+                }
+
+                if (PlayTimeManager.Instance != null)
+                {
+                    PlayTimeManager.Instance.SetPlayTime(slot.playTime);
+                }
+
+                Debug.Log("Loaded player at: " + targetPos);
             }
-
-            yield break;
-        }
-
-        Vector3 targetPos = new Vector3(
-            slot.playerX,
-            slot.playerY,
-            slot.playerZ
-        );
-
-        // =====================================================
-        // SAFE POSITION APPLY
-        // =====================================================
-
-        CharacterController cc = GetComponent<CharacterController>();
-
-        if (cc != null)
-        {
-            cc.enabled = false;
-            transform.position = targetPos;
-            cc.enabled = true;
-        }
-        else
-        {
-            transform.position = targetPos;
         }
 
         // =====================================================
-        // RESET PLAYER STATE (IMPORTANT FIX)
+        // RESTORE PLAYER
         // =====================================================
 
         if (controller != null)
@@ -71,14 +66,12 @@ public class PlayerLoadHandler : MonoBehaviour
         }
 
         // =====================================================
-        // RESTORE META DATA
+        // FADE OUT
         // =====================================================
 
-        if (PlayTimeManager.Instance != null)
+        if (LoadingUI.Instance != null)
         {
-            PlayTimeManager.Instance.SetPlayTime(slot.playTime);
+            yield return LoadingUI.Instance.FadeOut();
         }
-
-        Debug.Log("Player loaded at: " + targetPos);
     }
 }
